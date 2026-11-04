@@ -1,25 +1,22 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { userService } from './user.service';
+import { catchAsync } from '../../utils/catchAsync';
+import { sendResposne } from '../../utils/sendResponse';
 
-const createUser = async (req: Request, res: Response) => {
-    try {
-        const result = await userService.createUser(req.body);
 
-        res.status(httpStatus.CREATED).json({
+const createUser = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const payload = req.body;
+        const result = await userService.createUser(payload);
+        sendResposne(res, {
             success: true,
             statusCode: httpStatus.CREATED,
             message: 'User Registered Successfully',
-            data: result,
-        });
-    } catch (error: any) {
-        res.status(httpStatus.BAD_REQUEST).json({
-            success: false,
-            statusCode: httpStatus.BAD_REQUEST,
-            message: error.message || 'Something went wrong',
+            data: result
         });
     }
-};
+)
 
 export const userController = {
     createUser,
