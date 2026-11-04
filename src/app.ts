@@ -1,10 +1,8 @@
 import cookieParser from "cookie-parser";
-import express, { Application, NextFunction, Request, Response } from "express";
+import express, { Application, Request, Response } from "express";
 import cors from "cors"
 import config from "./config";
-import { prisma } from "./lib/prisma";
 import httpStatus from "http-status"
-import bcrypt from "bcryptjs";
 import { userRoutes } from "./modules/user/user.routes";
 
 const app: Application = express();
@@ -17,7 +15,7 @@ app.use(cors({
     credentials: true
 }))
 
-
+// Server Response For Root Routes
 app.get('/', (req: Request, res: Response) => {
     res.status(httpStatus.OK).json({
         success: true,
