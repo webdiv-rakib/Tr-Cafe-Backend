@@ -4,6 +4,7 @@ import cors from "cors"
 import config from "./config";
 import httpStatus from "http-status"
 import { userRoutes } from "./modules/user/user.routes";
+import { authRoutes } from "./modules/auth/auth.routes";
 
 const app: Application = express();
 // middleware
@@ -32,5 +33,6 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/auth', userRoutes);
+app.use('/api/auth', authRoutes);
 
 export default app;
