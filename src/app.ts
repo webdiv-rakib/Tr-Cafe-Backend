@@ -17,10 +17,19 @@ app.use(cors({
 }))
 
 
-app.get('/', async (req: Request, res: Response) => {
-    const user = await prisma.user.findMany(); //add this line with clg
-    console.log(user);
-    res.send("TR-Cafe-Backend")
+app.get('/', (req: Request, res: Response) => {
+    res.status(httpStatus.OK).json({
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "TR-Cafe API Server is running smoothly 🚀",
+        data: {
+            service: "TR-Cafe-Backend",
+            version: "0.0.1",
+            environment: process.env.NODE_ENV || "development",
+            uptime: `${process.uptime().toFixed(2)}s`,
+            timestamp: new Date().toISOString(),
+        },
+    });
 });
 
 app.post('/api/auth/register', async (req: Request, res: Response, next: NextFunction) => {
