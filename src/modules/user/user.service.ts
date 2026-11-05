@@ -46,10 +46,10 @@ const createUser = async (payload: ICreateUserInput): Promise<IUserResponse> => 
     return createdUser;
 };
 
-const getUserProfile = async (userId: string) => {
+const getUserProfile = async (id: string) => {
     const user = await prisma.user.findUniqueOrThrow({
         where: {
-            id: userId
+            id
         },
         omit: {
             password: true

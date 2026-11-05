@@ -27,7 +27,8 @@ const getUserProfile = catchAsync(
         if (typeof verifyToken === "string") {
             throw new Error(verifyToken)
         };
-        const profile = await userService.getUserProfile(verifyToken.id);
+        const decodedData = verifyToken.data as { id: string };
+        const profile = await userService.getUserProfile(decodedData.id);
         sendResposne(res, {
             success: true,
             statusCode: httpStatus.OK,
