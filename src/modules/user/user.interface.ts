@@ -4,7 +4,8 @@ export interface ICreateUserInput {
     name?: string,
     email: string,
     password: string,
-    phone?: string
+    phone?: string,
+    role?: Role
 }
 
 export interface IUserResponse {

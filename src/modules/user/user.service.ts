@@ -2,9 +2,10 @@ import { prisma } from "../../lib/prisma";
 import bcrypt from 'bcryptjs';
 import config from '../../config';
 import { ICreateUserInput, IUserResponse } from "./user.interface";
+import { Role } from "../../../generated/prisma/enums";
 
 const createUser = async (payload: ICreateUserInput): Promise<IUserResponse> => {
-    const { name, email, password, phone } = payload;
+    const { name, email, password, phone, role } = payload;
 
     if (!email || !password) {
         throw new Error('Email and password are required');
@@ -29,7 +30,7 @@ const createUser = async (payload: ICreateUserInput): Promise<IUserResponse> => 
             email,
             password: hashedPassword,
             phone,
-            role: 'CUSTOMER',
+            role,
         },
         select: {
             id: true,
