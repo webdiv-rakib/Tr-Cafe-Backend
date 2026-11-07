@@ -64,9 +64,23 @@ const updateMenuItem = catchAsync(
     }
 );
 
+const deleteMenuItem = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const result = await menuItemService.deleteMenuItem(id as string)
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Menu item deleted successfully',
+            data: result,
+        });
+    }
+);
+
 export const menuItemController = {
     createMenuItem,
     getAllMenuItems,
     getMenuItemById,
-    updateMenuItem
+    updateMenuItem,
+    deleteMenuItem
 }

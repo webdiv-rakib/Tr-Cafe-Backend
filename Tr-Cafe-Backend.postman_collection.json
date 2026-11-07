@@ -461,6 +461,66 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Delete Menu Item By Id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "searchTerm = name,des\r\ncategoryId = \r\nisAvailable = \r\nminPrice\r\nmaxPrice",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/menu-items/cmw6i6qj2000008tzxa4womhz",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "menu-items",
+                "cmw6i6qj2000008tzxa4womhz"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Menu Item By Id and CategoryId",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"price\":90,\r\n    \"categoryId\":\"cmw6ftfwr0000rktzrlagii7y\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/menu-items/cmw6i8zds000108tznt7linwg",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "menu-items",
+                "cmw6i8zds000108tznt7linwg"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }

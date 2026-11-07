@@ -125,9 +125,24 @@ const updateMenuItem = async (id: string, payload: IUpdateMenuItem) => {
 
 };
 
+const deleteMenuItem = async (id: string) => {
+    await prisma.menuItem.findUniqueOrThrow({
+        where: {
+            id
+        }
+    });
+    const deletedMenuItem = await prisma.menuItem.delete({
+        where: {
+            id
+        }
+    });
+    return deletedMenuItem
+}
+
 export const menuItemService = {
     createMenuItem,
     getAllMenuItems,
     getMenuItemById,
-    updateMenuItem
+    updateMenuItem,
+    deleteMenuItem
 }
