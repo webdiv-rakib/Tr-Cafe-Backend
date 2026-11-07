@@ -1,4 +1,4 @@
-import { DeliveryZone, OrderStatus } from "../../../generated/prisma/enums";
+import { DeliveryZone, OrderStatus, Role } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { ICreateOrderPayload } from "./order.interface";
 
@@ -159,9 +159,77 @@ const getMyOrders = async (userId: string) => {
         };
     });
     return formattedOrders;
-}
+};
+
+const getOrderById = async (id: string, userId: string, role: Role) => {
+    const order = await prisma.order.findUniqueOrThrow({
+        where: {
+            id: id,
+        },
+        include: {
+            items: {
+                include: {
+                    menuItem: {
+                        select: {
+                            id: true,
+                            name: true,
+                            imageUrl: true,
+                            price: true,
+                        },
+                    },
+                },
+            },
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                },
+            },
+            rider: {
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                },
+            },
+            payment: {
+                select: {
+                    id: true,
+                    status: true,
+                    provider: true,
+                    amount: true,
+                    transactionId: true,
+                },
+            },
+        },
+    });
+
+    // Guard: Customers can ONLY access their own orders
+    if (role === Role.CUSTOMER && order.userId !== userId) {
+        throw new Error('Forbidden: You can only view your own order');
+    }
+
+    // Guard: If a rider accesses, ensure it is assigned to them (unless staff/admin)
+    if (role === Role.RIDER && order.riderId !== userId) {
+        throw new Error('Forbidden: This order is not assigned to you');
+    }
+
+    const formattedOrder = {
+        ...order,
+        totalAmount: Number(order.totalAmount),
+        items: order.items.map((item) => ({
+            ...item,
+            unitPrice: Number(item.unitPrice),
+            subtotal: Number(item.unitPrice) * item.quantity,
+        })),
+    };
+    return formattedOrder;
+};
 
 export const orderService = {
     createOrder,
-    getMyOrders
+    getMyOrders,
+    getOrderById
 }

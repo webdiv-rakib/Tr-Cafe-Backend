@@ -5,11 +5,12 @@ import { orderController } from "./order.controller";
 
 const router = Router()
 
-// Public routes
-
-// Protected routes
+// Customer personal routes
 router.post('/', auth(Role.CUSTOMER), orderController.createOrder);
 router.get('/my-orders', auth(Role.CUSTOMER), orderController.getMyOrders);
+
+// Signle order route for Authorized Role
+router.get('/:id', auth(Role.ADMIN, Role.CUSTOMER, Role.RIDER, Role.STAFF), orderController.getOrderById);
 
 
 export const orderRoutes = router;

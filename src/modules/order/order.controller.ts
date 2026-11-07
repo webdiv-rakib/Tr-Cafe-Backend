@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResposne } from "../../utils/sendResponse";
 import { orderService } from "./order.service";
+import { Role } from '../../../generated/prisma/enums';
 
 const createOrder = catchAsync(
     async (req, res, next) => {
@@ -28,9 +29,26 @@ const getMyOrders = catchAsync(
             data: result,
         });
     }
-)
+);
+
+const getOrderById = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const userId = req.user?.id as string;
+        const role = req.user?.role as Role;
+
+        const result = await orderService.getOrderById(id as string, userId, role);
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Order retrieved successfully',
+            data: result,
+        });
+    }
+);
 
 export const orderController = {
     createOrder,
-    getMyOrders
+    getMyOrders,
+    getOrderById
 }
