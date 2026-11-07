@@ -10,7 +10,8 @@ export interface ICreateOrderPayload {
     contactPhone: string,
     orderNotes?: string,
     items: IOrderItemPayload[],
-    deliveryZone: DeliveryZone
+    deliveryZone: DeliveryZone,
+    paymentMethod: string
 }
 
 export interface IOrderFilterQuery {

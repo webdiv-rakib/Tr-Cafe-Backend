@@ -1,12 +1,23 @@
-import { DeliveryZone, OrderStatus, Role } from "../../../generated/prisma/enums";
+import { DeliveryZone, OrderStatus, PaymentStatus, Role } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { IAssignRiderPayload, ICreateOrderPayload, IOrderFilterQuery, IUpdateOrderStatusPayload } from "./order.interface";
 
 const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
-    const { deliveryAddress, contactPhone, orderNotes, items, deliveryZone } = payload;
+    const {
+        deliveryAddress,
+        contactPhone,
+        orderNotes,
+        items,
+        deliveryZone,
+        paymentMethod,
+    } = payload;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-        throw new Error("Order must include at least one item");
+        throw new Error('Order must include at least one item');
+    }
+
+    if (!paymentMethod) {
+        throw new Error('paymentMethod is required (e.g., CASH_ON_DELIVERY, BKASH)');
     }
 
     const result = await prisma.$transaction(async (tx) => {
@@ -18,7 +29,7 @@ const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
         });
 
         if (menuItems.length !== itemIds.length) {
-            throw new Error("One or more selected menu items do not exist");
+            throw new Error('One or more selected menu items do not exist');
         }
 
         let itemsTotal = 0;
@@ -51,6 +62,7 @@ const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
         const deliveryFee = 20; // In-house DIU area delivery charge
         const totalAmount = itemsTotal + deliveryFee;
 
+        // Create Order with nested items AND nested Payment record
         const order = await tx.order.create({
             data: {
                 userId,
@@ -62,6 +74,13 @@ const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
                 status: OrderStatus.PENDING,
                 items: {
                     create: orderItemsData,
+                },
+                payment: {
+                    create: {
+                        provider: paymentMethod.toUpperCase(),
+                        amount: totalAmount,
+                        status: PaymentStatus.PENDING,
+                    },
                 },
             },
             include: {
@@ -85,12 +104,13 @@ const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
                         phone: true,
                     },
                 },
+                payment: true, // Include the newly created payment record
             },
         });
 
-        // Return the order with explicit payable numbers
         return {
             ...order,
+            totalAmount: Number(order.totalAmount),
             pricing: {
                 itemsTotal,
                 deliveryFee,
@@ -101,6 +121,12 @@ const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
                 unitPrice: Number(item.unitPrice),
                 subtotal: Number(item.unitPrice) * item.quantity,
             })),
+            payment: order.payment
+                ? {
+                    ...order.payment,
+                    amount: Number(order.payment.amount),
+                }
+                : null,
         };
     });
 
