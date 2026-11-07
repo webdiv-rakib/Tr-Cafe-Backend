@@ -50,8 +50,23 @@ const getMenuItemById = catchAsync(
     }
 );
 
+const updateMenuItem = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const payload = req.body;
+        const result = await menuItemService.updateMenuItem(id as string, payload);
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Menu item updated successfully',
+            data: result,
+        });
+    }
+);
+
 export const menuItemController = {
     createMenuItem,
     getAllMenuItems,
-    getMenuItemById
+    getMenuItemById,
+    updateMenuItem
 }

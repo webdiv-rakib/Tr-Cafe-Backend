@@ -1,6 +1,6 @@
 import { Prisma } from "../../../generated/prisma/browser";
 import { prisma } from "../../lib/prisma"
-import { ICreateMenuItem, IMenuItemFilterRequest } from "./menuItem.interface"
+import { ICreateMenuItem, IMenuItemFilterRequest, IUpdateMenuItem } from "./menuItem.interface"
 
 const createMenuItem = async (payload: ICreateMenuItem) => {
     const { name, description, price, imageUrl, isAvailable, categoryId } = payload;
@@ -91,8 +91,43 @@ const getMenuItemById = async (id: string) => {
     return menuItem
 };
 
+const updateMenuItem = async (id: string, payload: IUpdateMenuItem) => {
+    const { name, description, price, imageUrl, isAvailable, categoryId } = payload
+    await prisma.menuItem.findUniqueOrThrow({
+        where: {
+            id
+        }
+    });
+    if (categoryId) {
+        await prisma.category.findUniqueOrThrow({
+            where: {
+                id: categoryId
+            }
+        })
+    };
+    const updatedMenuItem = await prisma.menuItem.update({
+        where: {
+            id
+        },
+        data: {
+            name,
+            description,
+            price,
+            imageUrl,
+            isAvailable,
+            categoryId
+        },
+        include: {
+            category: true
+        }
+    })
+    return updatedMenuItem
+
+};
+
 export const menuItemService = {
     createMenuItem,
     getAllMenuItems,
-    getMenuItemById
+    getMenuItemById,
+    updateMenuItem
 }

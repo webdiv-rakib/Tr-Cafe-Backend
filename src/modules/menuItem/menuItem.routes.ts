@@ -12,6 +12,7 @@ router.get('/:id', menuItemController.getMenuItemById);
 
 // Protected routes (ADMIN,STAFF)
 router.post('/', auth(Role.ADMIN), menuItemController.createMenuItem);
+router.patch('/:id', auth(Role.ADMIN), menuItemController.updateMenuItem);
 
 
 export const menuItemRoutes = router

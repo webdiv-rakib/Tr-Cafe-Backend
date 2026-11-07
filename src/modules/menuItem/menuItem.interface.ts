@@ -14,3 +14,12 @@ export interface IMenuItemFilterRequest {
     minPrice?: number,
     maxPrice?: number
 }
+
+export interface IUpdateMenuItem {
+    name?: string,
+    description?: string,
+    price?: number,
+    imageUrl?: string,
+    isAvailable?: boolean,
+    categoryId?: string
+}

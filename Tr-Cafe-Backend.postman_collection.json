@@ -1,0 +1,468 @@
+{
+  "info": {
+    "_postman_id": "7c32bf94-5cf6-4ab7-a683-08bbfee60770",
+    "name": "Tr-Cafe-Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55131488",
+    "_collection_link": "https://go.postman.co/collection/55131488-7c32bf94-5cf6-4ab7-a683-08bbfee60770?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Create An Account",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Toymur\",\r\n    \"email\": \"toymur@gmail.com\",\r\n    \"password\": \"12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/profile",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"abc@gmail.com\",\r\n    \"passowrd\": \"12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/refresh-token",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Logged In User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/auth/profile",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"image\": \"https://scontent.fdac5-1.fna.fbcdn.net/v/t39.30808-6/589533926_1275815664584997_5453308533796787298_n.jpg?stp=dst-jpg_tt6&cstp=mx1103x1111&ctp=s1103x1111&_nc_cat=105&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFuR3WJZ2yjITX6AL5hJyX-sL9u3zJ6ml-wv27fMnqaX5bX_xhAP67vG5zVwxmqd3kAkJ71hrARXPtmYb2hJru_&_nc_ohc=NEVzQiT6CkcQ7kNvwG9sDuE&_nc_oc=AdpzIi-pqpc2wJyxUZZauihESuaz9f3iks1ADj7LBvwbOiZyHckyvVbmpYzygO1tZdI&_nc_zt=23&_nc_ht=scontent.fdac5-1.fna&_nc_gid=8gsu98b75AkiB2q270iUkw&_nc_ss=7b2a8&oh=00_AQTvuiG8TI43s0LdKImcctu8rOH-yzje0tXgDRT4_eSHlw&oe=6AF4CD7D\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/update-profile",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "update-profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Password",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"oldPassword\": \"12345\",\r\n    \"newPassword\": \"1234567\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/change-password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"anm.rakib@gmail.com\",\r\n    \"password\": \"admin12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Regular\",\r\n    \"imageUrl\": \"https://gingerskillet.com/wp-content/uploads/2023/09/keralachickenfry_F.jpg\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/categories",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/categories",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/categories/cmw6ftfwr0000rktzrlagii7y",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "categories",
+                "cmw6ftfwr0000rktzrlagii7y"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category By Id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Fast Food Item\",\r\n    \"imageUrl\": \"https://gingerskillet.com/wp-content/uploads/2023/09/keralachickenfry_F.jpg\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/categories/cmw6ftfwr0000rktzrlagii7y",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "categories",
+                "cmw6ftfwr0000rktzrlagii7y"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category By Id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Fast Food Item\",\r\n    \"imageUrl\": \"https://gingerskillet.com/wp-content/uploads/2023/09/keralachickenfry_F.jpg\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/categories/cmw6fukxi0001rktzw4edux8h",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "categories",
+                "cmw6fukxi0001rktzw4edux8h"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Menu Item",
+      "item": [
+        {
+          "name": "Create Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Fried Chicken\",\r\n    \"description\": \"Broiler Chiken Leg And Wings\",\r\n    \"price\": 70,\r\n    \"imageUrl\": \"https://www.tasteofhome.com/wp-content/uploads/2018/01/Crispy-Fried-Chicken_EXPS_TOHJJ22_6445_DR-_02_03_11b-14.jpg\",\r\n    \"isAvailable\": true,\r\n    \"categoryId\": \"cmw6ftfwr0000rktzrlagii7y\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/menu-items",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "menu-items"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Menu Item also Search and Filter.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "searchTerm = name,des\r\ncategoryId = \r\nisAvailable = \r\nminPrice\r\nmaxPrice",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/menu-items",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "menu-items"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Menu Item By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "searchTerm = name,des\r\ncategoryId = \r\nisAvailable = \r\nminPrice\r\nmaxPrice",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/menu-items/cmw6i8zds000108tznt7linwg",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "menu-items",
+                "cmw6i8zds000108tznt7linwg"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
