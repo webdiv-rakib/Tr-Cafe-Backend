@@ -118,10 +118,78 @@ const getPaymentByOrderId = async (orderId: string, userId: string, role: Role) 
     };
 };
 
+const getRevenueSummary = async () => {
+    const totalPaidAggregate = await prisma.payment.aggregate({
+        where: {
+            status: PaymentStatus.PAID,
+        },
+        _sum: {
+            amount: true,
+        },
+        _count: {
+            id: true,
+        },
+    });
 
+    // 2. Calculate pending payments volume (e.g. active COD orders on delivery)
+    const pendingAggregate = await prisma.payment.aggregate({
+        where: {
+            status: PaymentStatus.PENDING,
+        },
+        _sum: {
+            amount: true,
+        },
+        _count: {
+            id: true,
+        },
+    });
+
+    // 3. Breakdown by payment provider for completed (PAID) sales
+    const providerBreakdown = await prisma.payment.groupBy({
+        by: ['provider'],
+        where: {
+            status: PaymentStatus.PAID,
+        },
+        _sum: {
+            amount: true,
+        },
+        _count: {
+            id: true,
+        },
+    });
+
+    // 4. Breakdown by payment status (PAID, PENDING, FAILED)
+    const statusBreakdown = await prisma.payment.groupBy({
+        by: ['status'],
+        _sum: {
+            amount: true,
+        },
+        _count: {
+            id: true,
+        },
+    });
+
+    return {
+        totalRevenue: Number(totalPaidAggregate._sum.amount || 0),
+        totalCompletedTransactions: totalPaidAggregate._count.id,
+        pendingRevenue: Number(pendingAggregate._sum.amount || 0),
+        pendingTransactions: pendingAggregate._count.id,
+        byProvider: providerBreakdown.map((item) => ({
+            provider: item.provider,
+            totalAmount: Number(item._sum.amount || 0),
+            transactionCount: item._count.id,
+        })),
+        byStatus: statusBreakdown.map((item) => ({
+            status: item.status,
+            totalAmount: Number(item._sum.amount || 0),
+            count: item._count.id,
+        })),
+    };
+};
 
 export const paymentService = {
     initiatepayment,
     updatePaymentStatus,
-    getPaymentByOrderId
+    getPaymentByOrderId,
+    getRevenueSummary
 }

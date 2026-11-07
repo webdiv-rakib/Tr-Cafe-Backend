@@ -49,10 +49,24 @@ const getPaymentByOrderId = catchAsync(
             data: result,
         });
     }
-)
+);
+
+const getRevenueSummary = catchAsync(
+    async (req, res, next) => {
+        const result = await paymentService.getRevenueSummary();
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Revenue analytics retrieved successfully',
+            data: result,
+        });
+    }
+);
 
 export const paymentController = {
     initiatePayment,
     updatePaymentStatus,
-    getPaymentByOrderId
+    getPaymentByOrderId,
+    getRevenueSummary
 }
