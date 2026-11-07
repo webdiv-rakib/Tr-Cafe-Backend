@@ -5,6 +5,9 @@ import { menuItemController } from "./menuItem.controller";
 
 const router = Router();
 
+// Public routes
+router.get('/', menuItemController.getAllMenuItems);
+
 
 // Protected routes (ADMIN,STAFF)
 router.post('/', auth(Role.ADMIN), menuItemController.createMenuItem);

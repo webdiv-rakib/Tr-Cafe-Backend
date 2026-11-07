@@ -6,3 +6,11 @@ export interface ICreateMenuItem {
     isAvailable?: boolean,
     categoryId: string
 }
+
+export interface IMenuItemFilterRequest {
+    searchTerm?: string,
+    categoryId?: string,
+    isAvailable?: boolean,
+    minPrice?: number,
+    maxPrice?: number
+}

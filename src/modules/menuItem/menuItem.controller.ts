@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResposne } from "../../utils/sendResponse";
 import { menuItemService } from "./menuItem.service";
+import { IMenuItemFilterRequest } from './menuItem.interface';
 
 const createMenuItem = catchAsync(
     async (req, res, next) => {
@@ -16,6 +17,27 @@ const createMenuItem = catchAsync(
     }
 );
 
+const getAllMenuItems = catchAsync(
+    async (req, res, next) => {
+        const filters: IMenuItemFilterRequest = {
+            searchTerm: req.query.searchTerm as string,
+            categoryId: req.query.categoryId as string,
+            isAvailable: req.query.isAvailable !== undefined ? req.query.isAvailable === 'true' : undefined,
+            minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
+            maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined
+        }
+
+        const result = await menuItemService.getAllMenuItems(filters);
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Menu items retrieved successfully',
+            data: result,
+        });
+    }
+)
+
 export const menuItemController = {
-    createMenuItem
+    createMenuItem,
+    getAllMenuItems
 }
