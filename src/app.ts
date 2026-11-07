@@ -6,6 +6,7 @@ import httpStatus from "http-status"
 import { userRoutes } from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { categoryRoutes } from "./modules/category/category.routes";
+import { menuItemRoutes } from "./modules/menuItem/menuItem.routes";
 
 const app: Application = express();
 // middleware
@@ -36,5 +37,6 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/auth', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/menu-items', menuItemRoutes);
 
 export default app;
