@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { ICreateCategory } from "./category.interface";
+import { ICreateCategory, IUpdateCategory } from "./category.interface";
 
 const createCategory = async (payload: ICreateCategory) => {
     const { name, imageUrl } = payload
@@ -38,7 +38,60 @@ const getAllCategories = async () => {
     return categories;
 };
 
+const getCategoryById = async (id: string) => {
+    const category = await prisma.category.findUnique({
+        where: {
+            id
+        },
+        include: {
+            menuItems: true
+        }
+    });
+    return category
+};
+
+const updateCategory = async (id: string, payload: IUpdateCategory) => {
+    const { name, slug, imageUrl } = payload
+    await prisma.category.findUniqueOrThrow({
+        where: {
+            id
+        }
+    });
+    let updatedSlug = slug
+    if (!slug && name) {
+        updatedSlug = name.toLowerCase().trim().replace(/[\s\W-]+/g, '-');
+    }
+    const updatedCategory = await prisma.category.update({
+        where: {
+            id
+        },
+        data: {
+            name,
+            slug,
+            imageUrl
+        }
+    });
+    return updatedCategory
+};
+
+const deleteCategory = async (id: string) => {
+    await prisma.category.findUniqueOrThrow({
+        where: {
+            id
+        }
+    });
+    const deleteCategory = await prisma.category.delete({
+        where: {
+            id
+        }
+    });
+    return deleteCategory
+};
+
 export const categoryService = {
     createCategory,
-    getAllCategories
+    getAllCategories,
+    getCategoryById,
+    updateCategory,
+    deleteCategory
 }

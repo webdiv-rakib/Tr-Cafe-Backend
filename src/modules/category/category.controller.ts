@@ -27,9 +27,52 @@ const getAllCategories = catchAsync(
             data: result,
         });
     }
-)
+);
+
+const getCategoryById = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const result = await categoryService.getCategoryById(id as string)
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Category retrieved successfully',
+            data: result,
+        });
+    }
+);
+
+const updateCategory = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const payload = req.body
+        const result = await categoryService.updateCategory(id as string, payload);
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Category updated successfully',
+            data: result,
+        });
+    }
+);
+
+const deleteCategory = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const result = await categoryService.deleteCategory(id as string);
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Category deleted successfully',
+            data: result,
+        });
+    }
+);
 
 export const categoryController = {
     createCategory,
-    getAllCategories
+    getAllCategories,
+    getCategoryById,
+    updateCategory,
+    deleteCategory
 }
