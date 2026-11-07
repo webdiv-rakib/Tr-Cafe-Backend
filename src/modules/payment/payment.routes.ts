@@ -6,5 +6,6 @@ import { paymentController } from "./payment.controller";
 const router = Router();
 
 router.post('/initiate', auth(Role.CUSTOMER), paymentController.initiatePayment);
+router.patch('/:id/status', auth(Role.ADMIN, Role.RIDER, Role.STAFF), paymentController.updatePaymentStatus);
 
 export const paymentRoutes = router

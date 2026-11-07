@@ -1,6 +1,6 @@
-import { PaymentStatus } from "../../../generated/prisma/enums";
+import { OrderStatus, PaymentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { IInitiatePaymentPayload } from "./payment.interface"
+import { IInitiatePaymentPayload, IUpdatePaymentStatusPayload } from "./payment.interface"
 
 const initiatepayment = async (userId: string, payload: IInitiatePaymentPayload) => {
     const { orderId, provider, transactionId } = payload;
@@ -50,8 +50,49 @@ const initiatepayment = async (userId: string, payload: IInitiatePaymentPayload)
         ...payment,
         amount: Number(payment.amount),
     };
-}
+};
+
+const updatePaymentStatus = async (paymentId: string, payload: IUpdatePaymentStatusPayload) => {
+    const { status, transactionId } = payload;
+
+    const existingPayment = await prisma.payment.findUniqueOrThrow({
+        where: { id: paymentId },
+        include: { order: true },
+    });
+
+    // Run in a transaction so if marked PAID, order status syncs when applicable
+    const result = await prisma.$transaction(async (tx) => {
+        const updatedPayment = await tx.payment.update({
+            where: { id: paymentId },
+            data: {
+                status,
+                ...(transactionId && { transactionId }),
+            },
+        });
+
+        // If payment is confirmed as PAID and rider was delivering, mark DELIVERED
+        if (
+            status === PaymentStatus.PAID &&
+            existingPayment.order.status === OrderStatus.OUT_FOR_DELIVERY
+        ) {
+            await tx.order.update({
+                where: { id: existingPayment.orderId },
+                data: {
+                    status: OrderStatus.DELIVERED,
+                },
+            });
+        }
+
+        return updatedPayment;
+    });
+
+    return {
+        ...result,
+        amount: Number(result.amount),
+    };
+};
 
 export const paymentService = {
-    initiatepayment
+    initiatepayment,
+    updatePaymentStatus
 }

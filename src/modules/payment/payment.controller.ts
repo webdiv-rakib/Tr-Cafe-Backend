@@ -18,6 +18,22 @@ const initiatePayment = catchAsync(
     }
 );
 
+const updatePaymentStatus = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const payload = req.body
+        const result = await paymentService.updatePaymentStatus(id as string, payload);
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Payment status updated successfully',
+            data: result,
+        });
+    }
+);
+
 export const paymentController = {
-    initiatePayment
+    initiatePayment,
+    updatePaymentStatus
 }
