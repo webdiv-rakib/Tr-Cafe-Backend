@@ -6,9 +6,10 @@ import { orderController } from "./order.controller";
 const router = Router()
 
 // Public routes
-router.post('/', auth(Role.CUSTOMER), orderController.createOrder);
 
 // Protected routes
+router.post('/', auth(Role.CUSTOMER), orderController.createOrder);
+router.get('/my-orders', auth(Role.CUSTOMER), orderController.getMyOrders);
 
 
 export const orderRoutes = router;

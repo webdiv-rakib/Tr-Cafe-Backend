@@ -107,6 +107,61 @@ const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
     return result;
 };
 
+const getMyOrders = async (userId: string) => {
+    const orders = await prisma.order.findMany({
+        where: {
+            userId,
+        },
+        include: {
+            items: {
+                include: {
+                    menuItem: {
+                        select: {
+                            id: true,
+                            name: true,
+                            imageUrl: true,
+                        },
+                    },
+                },
+            },
+            rider: {
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                },
+            },
+            payment: {
+                select: {
+                    id: true,
+                    status: true,
+                    provider: true,
+                    amount: true,
+                    transactionId: true
+                },
+            },
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
+
+    // Format line item subtotals for each order
+    const formattedOrders = orders.map((order) => {
+        return {
+            ...order,
+            totalAmount: Number(order.totalAmount),
+            items: order.items.map((item) => ({
+                ...item,
+                unitPrice: Number(item.unitPrice),
+                subtotal: Number(item.unitPrice) * item.quantity,
+            })),
+        };
+    });
+    return formattedOrders;
+}
+
 export const orderService = {
-    createOrder
+    createOrder,
+    getMyOrders
 }
