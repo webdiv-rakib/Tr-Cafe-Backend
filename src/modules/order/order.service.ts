@@ -1,6 +1,6 @@
 import { DeliveryZone, OrderStatus, Role } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { ICreateOrderPayload, IOrderFilterQuery, IUpdateOrderStatusPayload } from "./order.interface";
+import { IAssignRiderPayload, ICreateOrderPayload, IOrderFilterQuery, IUpdateOrderStatusPayload } from "./order.interface";
 
 const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
     const { deliveryAddress, contactPhone, orderNotes, items, deliveryZone } = payload;
@@ -359,10 +359,83 @@ const updateOrderStatus = async (orderId: string, userId: string, role: Role, pa
     return updatedOrder;
 };
 
+const assignRider = async (orderId: string, payload: IAssignRiderPayload) => {
+    const { riderId } = payload;
+
+    if (!riderId) {
+        throw new Error('riderId is required');
+    }
+
+    // 1. Verify that the order exists
+    const existingOrder = await prisma.order.findUniqueOrThrow({
+        where: { id: orderId },
+    });
+
+    // 2. Prevent assignment if the order is already cancelled or delivered
+    if (existingOrder.status === OrderStatus.CANCELLED) {
+        throw new Error('Cannot assign a rider to a CANCELLED order');
+    }
+
+    if (existingOrder.status === OrderStatus.DELIVERED) {
+        throw new Error('Order is already DELIVERED');
+    }
+
+    // 3. Verify that the assigned user exists and has the RIDER role
+    const rider = await prisma.user.findUniqueOrThrow({
+        where: { id: riderId },
+    });
+
+    if (rider.role !== Role.RIDER) {
+        throw new Error('Selected user does not have the RIDER role');
+    }
+
+    // 4. Update the order with riderId and mark OUT_FOR_DELIVERY
+    const updatedOrder = await prisma.order.update({
+        where: { id: orderId },
+        data: {
+            riderId,
+            status: OrderStatus.OUT_FOR_DELIVERY,
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    email: true,
+                },
+            },
+            rider: {
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    email: true,
+                },
+            },
+            items: {
+                include: {
+                    menuItem: {
+                        select: {
+                            id: true,
+                            name: true,
+                            imageUrl: true,
+                            price: true,
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    return updatedOrder;
+}
+
 export const orderService = {
     createOrder,
     getMyOrders,
     getOrderById,
     getAllOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    assignRider
 }

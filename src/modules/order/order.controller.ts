@@ -83,10 +83,27 @@ const updateOrderStatus = catchAsync(
     }
 );
 
+const assignRider = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const payload = req.body;
+
+        const result = await orderService.assignRider(id as string, payload);
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Rider assigned successfully and order marked as OUT_FOR_DELIVERY',
+            data: result,
+        });
+    }
+)
+
 export const orderController = {
     createOrder,
     getMyOrders,
     getOrderById,
     getAllOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    assignRider
 }

@@ -12,6 +12,7 @@ router.get('/my-orders', auth(Role.CUSTOMER), orderController.getMyOrders);
 
 // Signle order route for Authorized Role
 router.patch('/:id/status', auth(Role.ADMIN), orderController.updateOrderStatus);
+router.patch('/:id/assign-rider', auth(Role.ADMIN, Role.STAFF), orderController.assignRider);
 router.get('/:id', auth(Role.ADMIN, Role.CUSTOMER, Role.RIDER, Role.STAFF), orderController.getOrderById);
 
 

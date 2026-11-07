@@ -21,3 +21,7 @@ export interface IOrderFilterQuery {
 export interface IUpdateOrderStatusPayload {
     status: OrderStatus
 }
+
+export interface IAssignRiderPayload {
+    riderId: string
+}
