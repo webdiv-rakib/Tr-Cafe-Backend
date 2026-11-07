@@ -1,4 +1,4 @@
-import { OrderStatus, PaymentStatus } from "../../../generated/prisma/enums";
+import { OrderStatus, PaymentStatus, Role } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { IInitiatePaymentPayload, IUpdatePaymentStatusPayload } from "./payment.interface"
 
@@ -92,7 +92,36 @@ const updatePaymentStatus = async (paymentId: string, payload: IUpdatePaymentSta
     };
 };
 
+const getPaymentByOrderId = async (orderId: string, userId: string, role: Role) => {
+    const payment = await prisma.payment.findUniqueOrThrow({
+        where: { orderId },
+        include: {
+            order: {
+                select: {
+                    id: true,
+                    userId: true,
+                    status: true,
+                    totalAmount: true,
+                },
+            },
+        },
+    });
+
+    // Customer ownership guard
+    if (role === Role.CUSTOMER && payment.order.userId !== userId) {
+        throw new Error('Forbidden: You can only view payment details for your own order');
+    }
+
+    return {
+        ...payment,
+        amount: Number(payment.amount),
+    };
+};
+
+
+
 export const paymentService = {
     initiatepayment,
-    updatePaymentStatus
+    updatePaymentStatus,
+    getPaymentByOrderId
 }
