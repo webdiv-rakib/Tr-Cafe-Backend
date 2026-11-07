@@ -7,6 +7,7 @@ import { userRoutes } from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { categoryRoutes } from "./modules/category/category.routes";
 import { menuItemRoutes } from "./modules/menuItem/menuItem.routes";
+import { orderRoutes } from "./modules/order/order.routes";
 
 const app: Application = express();
 // middleware
@@ -38,5 +39,6 @@ app.use('/api/auth', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/menu-items', menuItemRoutes);
+app.use('/api/order', orderRoutes);
 
 export default app;
