@@ -1,4 +1,4 @@
-import { DeliveryZone } from "../../../generated/prisma/enums"
+import { DeliveryZone, OrderStatus } from "../../../generated/prisma/enums"
 
 export interface IOrderItemPayload {
     menuItemId: string,
@@ -11,4 +11,9 @@ export interface ICreateOrderPayload {
     orderNotes?: string,
     items: IOrderItemPayload[],
     deliveryZone: DeliveryZone
+}
+
+export interface IOrderFilterQuery {
+    status?: OrderStatus,
+    deliveryZone?: DeliveryZone
 }

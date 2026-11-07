@@ -7,6 +7,7 @@ const router = Router()
 
 // Customer personal routes
 router.post('/', auth(Role.CUSTOMER), orderController.createOrder);
+router.get('/', auth(Role.ADMIN), orderController.getAllOrders);
 router.get('/my-orders', auth(Role.CUSTOMER), orderController.getMyOrders);
 
 // Signle order route for Authorized Role

@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResposne } from "../../utils/sendResponse";
 import { orderService } from "./order.service";
-import { Role } from '../../../generated/prisma/enums';
+import { DeliveryZone, OrderStatus, Role } from '../../../generated/prisma/enums';
 
 const createOrder = catchAsync(
     async (req, res, next) => {
@@ -47,8 +47,27 @@ const getOrderById = catchAsync(
     }
 );
 
+const getAllOrders = catchAsync(
+    async (req, res, next) => {
+        const filters = {
+            status: req.query.status as OrderStatus | undefined,
+            deliveryZone: req.query.deliveryZone as DeliveryZone | undefined,
+        };
+
+        const result = await orderService.getAllOrders(filters);
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'All orders retrieved successfully',
+            data: result,
+        });
+    }
+);
+
 export const orderController = {
     createOrder,
     getMyOrders,
-    getOrderById
+    getOrderById,
+    getAllOrders
 }
