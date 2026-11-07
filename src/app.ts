@@ -5,6 +5,7 @@ import config from "./config";
 import httpStatus from "http-status"
 import { userRoutes } from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
+import { categoryRoutes } from "./modules/category/category.routes";
 
 const app: Application = express();
 // middleware
@@ -34,5 +35,6 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/api/auth', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/categories', categoryRoutes);
 
 export default app;
