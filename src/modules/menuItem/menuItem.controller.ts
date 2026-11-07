@@ -35,9 +35,23 @@ const getAllMenuItems = catchAsync(
             data: result,
         });
     }
-)
+);
+
+const getMenuItemById = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params
+        const result = await menuItemService.getMenuItemById(id as string);
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Menu item retrieved successfully',
+            data: result,
+        });
+    }
+);
 
 export const menuItemController = {
     createMenuItem,
-    getAllMenuItems
+    getAllMenuItems,
+    getMenuItemById
 }

@@ -77,9 +77,22 @@ const getAllMenuItems = async (filters: IMenuItemFilterRequest) => {
         }
     });
     return menuItems
-}
+};
+
+const getMenuItemById = async (id: string) => {
+    const menuItem = await prisma.menuItem.findUniqueOrThrow({
+        where: {
+            id
+        },
+        include: {
+            category: true
+        }
+    })
+    return menuItem
+};
 
 export const menuItemService = {
     createMenuItem,
-    getAllMenuItems
+    getAllMenuItems,
+    getMenuItemById
 }

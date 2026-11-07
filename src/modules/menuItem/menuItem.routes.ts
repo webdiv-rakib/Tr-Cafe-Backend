@@ -7,6 +7,7 @@ const router = Router();
 
 // Public routes
 router.get('/', menuItemController.getAllMenuItems);
+router.get('/:id', menuItemController.getMenuItemById);
 
 
 // Protected routes (ADMIN,STAFF)
