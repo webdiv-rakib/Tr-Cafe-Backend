@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import bcrypt from 'bcryptjs';
 import config from '../../config';
-import { ICreateUserInput, IUpdateProfile, IUserResponse } from "./user.interface";
+import { IChangePassword, ICreateUserInput, IUpdateProfile, IUserResponse } from "./user.interface";
 import { Role } from "../../../generated/prisma/enums";
 
 const createUser = async (payload: ICreateUserInput): Promise<IUserResponse> => {
@@ -79,10 +79,48 @@ const updateProfile = async (id: string, payload: IUpdateProfile) => {
         }
     })
     return updateUser
+};
+
+const changePassword = async (id: string, payload: IChangePassword) => {
+    const { oldPassword, newPassword } = payload;
+    if (!oldPassword || !newPassword) {
+        throw new Error("Both old password and new password are required")
+    };
+    const user = await prisma.user.findUniqueOrThrow({
+        where: {
+            id
+        }
+    });
+
+    if (!user.password) {
+        throw new Error('This account uses social login and has no password to change');
+    };
+
+    const isOldPasswordMatched = await bcrypt.compare(oldPassword, user.password);
+    if (!isOldPasswordMatched) {
+        throw new Error("Old password does not match")
+    };
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+        throw new Error('New password must be different from the old password');
+    };
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, Number(config.bcrypt_salt_rounds));
+    await prisma.user.update({
+        where: {
+            id
+        },
+        data: {
+            password: hashedNewPassword
+        }
+    });
+    return null
 }
 
 export const userService = {
     createUser,
     getUserProfile,
-    updateProfile
+    updateProfile,
+    changePassword
 }

@@ -22,3 +22,8 @@ export interface IUpdateProfile {
     phone?: string,
     image?: string,
 }
+
+export interface IChangePassword {
+    oldPassword: string,
+    newPassword: string,
+}
