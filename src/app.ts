@@ -8,6 +8,7 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import { categoryRoutes } from "./modules/category/category.routes";
 import { menuItemRoutes } from "./modules/menuItem/menuItem.routes";
 import { orderRoutes } from "./modules/order/order.routes";
+import { paymentRoutes } from "./modules/payment/payment.routes";
 
 const app: Application = express();
 // middleware
@@ -40,5 +41,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/menu-items', menuItemRoutes);
 app.use('/api/order', orderRoutes);
+app.use('/api/payment', paymentRoutes);
 
 export default app;
