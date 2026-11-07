@@ -489,7 +489,48 @@ const getAssignedDeliveries = async (riderId: string, status?: OrderStatus) => {
     }));
 
     return formattedDeliveries;
-}
+};
+
+const cancelOrder = async (orderId: string, userId: string) => {
+    // 1. Verify the order exists
+    const existingOrder = await prisma.order.findUniqueOrThrow({
+        where: { id: orderId },
+    });
+
+    // 2. Ensure the order belongs to the requesting customer
+    if (existingOrder.userId !== userId) {
+        throw new Error('Forbidden: You can only cancel your own order');
+    }
+
+    // 3. Strict guard: only allow cancellation if still in PENDING status
+    if (existingOrder.status !== OrderStatus.PENDING) {
+        throw new Error(
+            `Cannot cancel this order because it is already ${existingOrder.status}. Orders can only be cancelled while in PENDING status.`
+        );
+    }
+
+    // 4. Update the order status to CANCELLED
+    const cancelledOrder = await prisma.order.update({
+        where: { id: orderId },
+        data: {
+            status: OrderStatus.CANCELLED,
+        },
+        include: {
+            items: {
+                include: {
+                    menuItem: {
+                        select: {
+                            id: true,
+                            name: true,
+                            price: true,
+                        },
+                    },
+                },
+            },
+        },
+    });
+    return cancelledOrder;
+};
 
 export const orderService = {
     createOrder,
@@ -498,5 +539,6 @@ export const orderService = {
     getAllOrders,
     updateOrderStatus,
     assignRider,
-    getAssignedDeliveries
+    getAssignedDeliveries,
+    cancelOrder
 }

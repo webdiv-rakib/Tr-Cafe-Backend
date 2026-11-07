@@ -113,7 +113,22 @@ const getAssignedDeliveries = catchAsync(
             data: result,
         });
     }
-)
+);
+
+const cancelOrder = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const userId = req.user?.id as string;
+        const result = await orderService.cancelOrder(id as string, userId);
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Order cancelled successfully',
+            data: result,
+        });
+    }
+);
 
 export const orderController = {
     createOrder,
@@ -122,5 +137,6 @@ export const orderController = {
     getAllOrders,
     updateOrderStatus,
     assignRider,
-    getAssignedDeliveries
+    getAssignedDeliveries,
+    cancelOrder
 }
