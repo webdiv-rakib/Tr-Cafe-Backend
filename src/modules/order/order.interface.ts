@@ -17,3 +17,7 @@ export interface IOrderFilterQuery {
     status?: OrderStatus,
     deliveryZone?: DeliveryZone
 }
+
+export interface IUpdateOrderStatusPayload {
+    status: OrderStatus
+}

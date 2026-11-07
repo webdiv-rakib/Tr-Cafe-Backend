@@ -1,6 +1,6 @@
 import { DeliveryZone, OrderStatus, Role } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { ICreateOrderPayload, IOrderFilterQuery } from "./order.interface";
+import { ICreateOrderPayload, IOrderFilterQuery, IUpdateOrderStatusPayload } from "./order.interface";
 
 const createOrder = async (userId: string, payload: ICreateOrderPayload) => {
     const { deliveryAddress, contactPhone, orderNotes, items, deliveryZone } = payload;
@@ -292,9 +292,77 @@ const getAllOrders = async (filters: IOrderFilterQuery) => {
     return formattedOrders;
 }
 
+const updateOrderStatus = async (orderId: string, userId: string, role: Role, payload: IUpdateOrderStatusPayload) => {
+    const { status: targetStatus } = payload;
+
+    if (!targetStatus) {
+        throw new Error('New order status is required');
+    }
+
+    // 1. Verify order exists
+    const existingOrder = await prisma.order.findUniqueOrThrow({
+        where: { id: orderId },
+    });
+
+    const currentStatus = existingOrder.status;
+
+    // 2. Prevent updates on finalized orders
+    if (currentStatus === OrderStatus.DELIVERED) {
+        throw new Error('Order is already marked as DELIVERED and cannot be modified');
+    }
+
+    if (currentStatus === OrderStatus.CANCELLED) {
+        throw new Error('Order has been CANCELLED and cannot be modified');
+    }
+
+    // 3. Role-specific restrictions
+    if (role === Role.RIDER) {
+        // Riders can only update orders assigned directly to them
+        if (existingOrder.riderId !== userId) {
+            throw new Error('Forbidden: You can only update orders assigned to you');
+        }
+
+        // Riders can only mark orders as OUT_FOR_DELIVERY or DELIVERED
+        if (
+            targetStatus !== OrderStatus.OUT_FOR_DELIVERY &&
+            targetStatus !== OrderStatus.DELIVERED
+        ) {
+            throw new Error('Riders can only change status to OUT_FOR_DELIVERY or DELIVERED');
+        }
+    }
+
+    // 4. Update the order status
+    const updatedOrder = await prisma.order.update({
+        where: { id: orderId },
+        data: {
+            status: targetStatus,
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    email: true,
+                },
+            },
+            rider: {
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                },
+            },
+        },
+    });
+
+    return updatedOrder;
+};
+
 export const orderService = {
     createOrder,
     getMyOrders,
     getOrderById,
-    getAllOrders
+    getAllOrders,
+    updateOrderStatus
 }
