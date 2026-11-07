@@ -16,3 +16,9 @@ export interface IUserResponse {
     createdAt: Date,
     updatedAt: Date
 }
+
+export interface IUpdateProfile {
+    name?: string,
+    phone?: string,
+    image?: string,
+}

@@ -7,5 +7,6 @@ const router = Router();
 
 router.post('/register', userController.createUser);
 router.get('/profile', auth(), userController.getUserProfile);
+router.patch('/update-profile', auth(), userController.updateProfile);
 
 export const userRoutes = router;

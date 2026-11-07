@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import bcrypt from 'bcryptjs';
 import config from '../../config';
-import { ICreateUserInput, IUserResponse } from "./user.interface";
+import { ICreateUserInput, IUpdateProfile, IUserResponse } from "./user.interface";
 import { Role } from "../../../generated/prisma/enums";
 
 const createUser = async (payload: ICreateUserInput): Promise<IUserResponse> => {
@@ -58,7 +58,31 @@ const getUserProfile = async (id: string) => {
     return user
 };
 
+const updateProfile = async (id: string, payload: IUpdateProfile) => {
+    const { name, phone, image } = payload
+    const user = await prisma.user.findUniqueOrThrow({
+        where: {
+            id
+        }
+    });
+    const updateUser = await prisma.user.update({
+        where: {
+            id
+        },
+        data: {
+            name,
+            phone,
+            image
+        },
+        omit: {
+            password: true
+        }
+    })
+    return updateUser
+}
+
 export const userService = {
     createUser,
-    getUserProfile
+    getUserProfile,
+    updateProfile
 }
