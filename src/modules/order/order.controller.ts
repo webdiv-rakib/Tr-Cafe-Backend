@@ -97,6 +97,22 @@ const assignRider = catchAsync(
             data: result,
         });
     }
+);
+
+const getAssignedDeliveries = catchAsync(
+    async (req, res, next) => {
+        const riderId = req.user?.id as string;
+        const status = req.query.status as OrderStatus | undefined;
+
+        const result = await orderService.getAssignedDeliveries(riderId, status);
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Assigned deliveries retrieved successfully',
+            data: result,
+        });
+    }
 )
 
 export const orderController = {
@@ -105,5 +121,6 @@ export const orderController = {
     getOrderById,
     getAllOrders,
     updateOrderStatus,
-    assignRider
+    assignRider,
+    getAssignedDeliveries
 }

@@ -429,6 +429,66 @@ const assignRider = async (orderId: string, payload: IAssignRiderPayload) => {
     });
 
     return updatedOrder;
+};
+
+const getAssignedDeliveries = async (riderId: string, status?: OrderStatus) => {
+    const deliveries = await prisma.order.findMany({
+        where: {
+            riderId,
+            ...(status
+                ? { status }
+                : {
+                    // Default to showing non-cancelled active and recently completed deliveries
+                    status: {
+                        in: [OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED],
+                    },
+                }),
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    email: true,
+                },
+            },
+            payment: {
+                select: {
+                    id: true,
+                    status: true,
+                    provider: true,
+                    amount: true,
+                },
+            },
+            items: {
+                include: {
+                    menuItem: {
+                        select: {
+                            id: true,
+                            name: true,
+                            imageUrl: true,
+                        },
+                    },
+                },
+            },
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
+
+    const formattedDeliveries = deliveries.map((order) => ({
+        ...order,
+        totalAmount: Number(order.totalAmount),
+        items: order.items.map((item) => ({
+            ...item,
+            unitPrice: Number(item.unitPrice),
+            subtotal: Number(item.unitPrice) * item.quantity,
+        })),
+    }));
+
+    return formattedDeliveries;
 }
 
 export const orderService = {
@@ -437,5 +497,6 @@ export const orderService = {
     getOrderById,
     getAllOrders,
     updateOrderStatus,
-    assignRider
+    assignRider,
+    getAssignedDeliveries
 }

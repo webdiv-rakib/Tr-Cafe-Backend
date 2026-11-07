@@ -9,6 +9,7 @@ const router = Router()
 router.post('/', auth(Role.CUSTOMER), orderController.createOrder);
 router.get('/', auth(Role.ADMIN), orderController.getAllOrders);
 router.get('/my-orders', auth(Role.CUSTOMER), orderController.getMyOrders);
+router.get('/assigned-deliveries', auth(Role.RIDER), orderController.getAssignedDeliveries);
 
 // Signle order route for Authorized Role
 router.patch('/:id/status', auth(Role.ADMIN), orderController.updateOrderStatus);
