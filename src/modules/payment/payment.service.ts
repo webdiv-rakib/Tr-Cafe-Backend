@@ -280,47 +280,6 @@ const createStripeCheckoutSession = async (userId: string, orderId: string) => {
 
 };
 
-// const handleStripeWebhook = async (payload: Buffer, signature: string) => {
-//     const webhookSecret = config.stripe_webhook_secret;
-
-//     if (!webhookSecret) {
-//         throw new Error('STRIPE_WEBHOOK_SECRET is not configured in .env');
-//     }
-
-//     // 1. Verify event authenticity with Stripe SDK
-//     const event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-
-//     // 2. Handle the successful checkout session event
-//     if (event.type === 'checkout.session.completed') {
-//         const session = event.data.object as Stripe.Checkout.Session;
-//         const orderId = session.metadata?.orderId;
-//         const paymentIntentId = (session.payment_intent as string) || session.id;
-
-//         if (orderId) {
-//             await prisma.$transaction(async (tx) => {
-//                 // Mark payment as PAID
-//                 await tx.payment.update({
-//                     where: { orderId },
-//                     data: {
-//                         status: PaymentStatus.PAID,
-//                         transactionId: paymentIntentId,
-//                     },
-//                 });
-
-//                 // Advance order to PREPARING
-//                 await tx.order.update({
-//                     where: { id: orderId },
-//                     data: {
-//                         status: OrderStatus.PREPARING,
-//                     },
-//                 });
-//             });
-//         }
-//     }
-
-//     return { received: true };
-// };
-
 const handleStripeWebhook = async (payload: Buffer, signature: string) => {
     const webhookSecret = config.stripe_webhook_secret;
 
@@ -363,6 +322,8 @@ const handleStripeWebhook = async (payload: Buffer, signature: string) => {
 
     return { received: true };
 };
+
+
 export const paymentService = {
     initiatepayment,
     updatePaymentStatus,
