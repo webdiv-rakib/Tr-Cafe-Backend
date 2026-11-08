@@ -4,6 +4,7 @@ import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
 import { IInitiatePaymentPayload, IUpdatePaymentStatusPayload } from "./payment.interface"
+import axios from "axios";
 
 const initiatepayment = async (userId: string, payload: IInitiatePaymentPayload) => {
     const { orderId, provider, transactionId } = payload;
@@ -190,7 +191,7 @@ const getRevenueSummary = async () => {
     };
 };
 
-//-----------------------------------
+//----------------STRIPE-------------------
 // Stripe
 const createStripeCheckoutSession = async (userId: string, orderId: string) => {
     // 1. Fetch order with items and user
@@ -323,6 +324,157 @@ const handleStripeWebhook = async (payload: Buffer, signature: string) => {
     return { received: true };
 };
 
+//-----------------SSLECOMMERZ------------------
+const initSSLCommerzPayment = async (userId: string, orderId: string) => {
+    // 1. Fetch order with items and user
+    const order = await prisma.order.findUniqueOrThrow({
+        where: { id: orderId },
+        include: {
+            items: {
+                include: {
+                    menuItem: true,
+                },
+            },
+            user: {
+                select: {
+                    name: true,
+                    email: true,
+                },
+            },
+            payment: true,
+        },
+    });
+
+    // 2. Ownership & validation checks
+    if (order.userId !== userId) {
+        throw new Error('Forbidden: You can only pay for your own order');
+    }
+
+    if (order.payment?.status === PaymentStatus.PAID) {
+        throw new Error('This order has already been paid');
+    }
+
+    // Generate a unique transaction ID for this attempt
+    const transactionId = `SSL-${order.id.slice(-6)}-${Date.now()}`;
+
+    // 3. Build SSLCommerz V4 payload (requires application/x-www-form-urlencoded)
+    const sslPayload = new URLSearchParams({
+        store_id: config.ssl_store_id,
+        store_passwd: config.ssl_store_pass,
+        total_amount: Number(order.totalAmount).toFixed(2),
+        currency: 'BDT',
+        tran_id: transactionId,
+        // SSLCommerz sends a POST request to these backend endpoints upon completion
+        success_url: `${config.backend_url}/payment/sslcommerz/success`,
+        fail_url: `${config.backend_url}/payment/sslcommerz/fail`,
+        cancel_url: `${config.backend_url}/payment/sslcommerz/cancel`,
+        ipn_url: `${config.backend_url}/payment/sslcommerz/ipn`,
+        shipping_method: 'Courier',
+        product_name: order.items.map((i) => i.menuItem.name).join(', '),
+        product_category: 'Fast Food',
+        product_profile: 'general',
+        cus_name: order.user.name || 'DIU Customer',
+        cus_email: order.user.email,
+        cus_add1: order.deliveryAddress,
+        cus_city: 'Dhaka',
+        cus_state: 'Dhaka',
+        cus_postcode: '1341',
+        cus_country: 'Bangladesh',
+        cus_phone: order.contactPhone,
+        ship_name: order.user.name || 'DIU Customer',
+        ship_add1: order.deliveryAddress,
+        ship_city: 'Dhaka',
+        ship_state: 'Dhaka',
+        ship_postcode: '1341',
+        ship_country: 'Bangladesh',
+        value_a: order.id, // Pass orderId in custom field value_a
+    });
+
+    // 4. Request session URL from SSLCommerz
+    const response = await axios.post(config.ssl_payment_api, sslPayload.toString(), {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    });
+
+    if (response.data?.status !== 'SUCCESS') {
+        throw new Error(
+            `SSLCommerz Session Failed: ${response.data?.failedreason || 'Unknown error'}`
+        );
+    }
+
+    // 5. Upsert payment record as PENDING
+    await prisma.payment.upsert({
+        where: { orderId: order.id },
+        create: {
+            orderId: order.id,
+            amount: order.totalAmount,
+            provider: 'SSLCOMMERZ',
+            status: PaymentStatus.PENDING,
+            transactionId: transactionId,
+        },
+        update: {
+            provider: 'SSLCOMMERZ',
+            amount: order.totalAmount,
+            status: PaymentStatus.PENDING,
+            transactionId: transactionId,
+        },
+    });
+
+    return {
+        paymentUrl: response.data.GatewayPageURL,
+        transactionId,
+    };
+};
+
+const validateSSLCommerzSuccess = async (payload: any) => {
+    const { val_id, tran_id } = payload;
+
+    if (!val_id) {
+        throw new Error('Validation ID (val_id) is missing from SSLCommerz callback');
+    }
+
+    // 1. Verify payment authenticity with SSLCommerz Validation Server
+    const validationUrl = `${config.ssl_validation_api}?val_id=${val_id}&store_id=${config.ssl_store_id}&store_passwd=${config.ssl_store_pass}&format=json`;
+
+    const response = await axios.get(validationUrl);
+    const data = response.data;
+
+    if (data.status !== 'VALID' && data.status !== 'VALIDATED') {
+        throw new Error('SSLCommerz payment validation failed');
+    }
+
+    // 2. Find the payment by transactionId (tran_id)
+    const existingPayment = await prisma.payment.findUnique({
+        where: { transactionId: tran_id },
+    });
+
+    if (!existingPayment) {
+        throw new Error(`Payment record not found for tran_id: ${tran_id}`);
+    }
+
+    // 3. Atomically update Payment to PAID and Order to PREPARING
+    await prisma.$transaction(async (tx) => {
+        await tx.payment.update({
+            where: { id: existingPayment.id },
+            data: {
+                status: PaymentStatus.PAID,
+            },
+        });
+
+        await tx.order.update({
+            where: { id: existingPayment.orderId },
+            data: {
+                status: OrderStatus.PREPARING,
+            },
+        });
+    });
+
+    return {
+        orderId: existingPayment.orderId,
+        transactionId: tran_id,
+    };
+};
 
 export const paymentService = {
     initiatepayment,
@@ -330,5 +482,7 @@ export const paymentService = {
     getPaymentByOrderId,
     getRevenueSummary,
     createStripeCheckoutSession,
-    handleStripeWebhook
+    handleStripeWebhook,
+    initSSLCommerzPayment,
+    validateSSLCommerzSuccess
 }

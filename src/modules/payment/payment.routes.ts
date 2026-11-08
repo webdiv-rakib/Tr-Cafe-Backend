@@ -5,6 +5,11 @@ import { paymentController } from "./payment.controller";
 
 const router = Router();
 
+// SSLCommerz Check Out URL
+router.post('/sslcommerz/init', auth(Role.CUSTOMER), paymentController.initSSLCommerzPayment);
+router.post('/sslcommerz/success', paymentController.sslCommerzSuccess);
+
+// Stripe Check Out URL
 router.post('/stripe/checkout', auth(Role.CUSTOMER), paymentController.createStripeCheckoutSession);
 // Admin financial reporting
 router.get('/revenue', auth(Role.ADMIN), paymentController.getRevenueSummary);

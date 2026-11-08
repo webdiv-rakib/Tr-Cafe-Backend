@@ -4,6 +4,7 @@ import { sendResposne } from "../../utils/sendResponse";
 import { paymentService } from "./payment.service";
 import { Role } from '../../../generated/prisma/enums';
 import { Request, Response } from 'express';
+import config from '../../config';
 
 const initiatePayment = catchAsync(
     async (req, res, next) => {
@@ -91,11 +92,40 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
     }
 };
 
+const initSSLCommerzPayment = catchAsync(
+    async (req, res, next) => {
+        const userId = req.user?.id as string;
+        const { orderId } = req.body;
+
+        const result = await paymentService.initSSLCommerzPayment(userId, orderId);
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'SSLCommerz checkout URL generated successfully',
+            data: result,
+        });
+    }
+);
+
+const sslCommerzSuccess = catchAsync(
+    async (req, res, next) => {
+        const result = await paymentService.validateSSLCommerzSuccess(req.body);
+        // Redirect to frontend success URL just like Stripe
+        return res.redirect(
+            `${config.app_url}/payment?success=true&orderId=${result.orderId}&tranId=${result.transactionId}`
+        );
+    }
+);
+
+
 export const paymentController = {
     initiatePayment,
     updatePaymentStatus,
     getPaymentByOrderId,
     getRevenueSummary,
     createStripeCheckoutSession,
-    handleStripeWebhook
+    handleStripeWebhook,
+    initSSLCommerzPayment,
+    sslCommerzSuccess
 }

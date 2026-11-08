@@ -14,5 +14,10 @@ export default {
     jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN!,
     env: process.env.NODE_ENV!,
     stripe_secret_key: process.env.STRIPE_SECRET_KEY!,
-    stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET!
+    stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET!,
+    ssl_store_id: process.env.SSL_STORE_ID!,
+    ssl_store_pass: process.env.SSL_STORE_PASS!,
+    ssl_payment_api: process.env.SSL_PAYMENT_API!,
+    ssl_validation_api: process.env.SSL_VALIDATION_API!,
+    backend_url: process.env.BACKEND_URL || 'http://localhost:5000/api',
 }
