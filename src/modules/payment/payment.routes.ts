@@ -5,6 +5,7 @@ import { paymentController } from "./payment.controller";
 
 const router = Router();
 
+router.post('/stripe/checkout', auth(Role.CUSTOMER), paymentController.createStripeCheckoutSession);
 // Admin financial reporting
 router.get('/revenue', auth(Role.ADMIN), paymentController.getRevenueSummary);
 

@@ -1,5 +1,8 @@
+import Stripe from "stripe";
 import { OrderStatus, PaymentStatus, Role } from "../../../generated/prisma/enums";
+import config from "../../config";
 import { prisma } from "../../lib/prisma";
+import { stripe } from "../../lib/stripe";
 import { IInitiatePaymentPayload, IUpdatePaymentStatusPayload } from "./payment.interface"
 
 const initiatepayment = async (userId: string, payload: IInitiatePaymentPayload) => {
@@ -187,9 +190,184 @@ const getRevenueSummary = async () => {
     };
 };
 
+//-----------------------------------
+// Stripe
+const createStripeCheckoutSession = async (userId: string, orderId: string) => {
+    // 1. Fetch order with items and user
+    const order = await prisma.order.findUniqueOrThrow({
+        where: { id: orderId },
+        include: {
+            items: {
+                include: {
+                    menuItem: true,
+                },
+            },
+            user: {
+                select: {
+                    email: true,
+                },
+            },
+            payment: true,
+        },
+    });
+    // 2. Ownership & validation checks
+    if (order.userId !== userId) {
+        throw new Error('Forbidden: You can only pay for your own order');
+    };
+    if (order.payment?.status === PaymentStatus.PAID) {
+        throw new Error('This order has already been paid');
+    };
+
+    // 3. Format items for Stripe (Stripe requires amount in poisha/cents -> multiply by 100)
+    const lineItems = order.items.map((item) => ({
+        price_data: {
+            currency: 'bdt',
+            product_data: {
+                name: item.menuItem.name,
+                images: item.menuItem.imageUrl ? [item.menuItem.imageUrl] : [],
+            },
+            unit_amount: Math.round(Number(item.unitPrice) * 100),
+        },
+        quantity: item.quantity,
+    }));
+    // Add DIU delivery fee (20 BDT)
+    lineItems.push({
+        price_data: {
+            currency: 'bdt',
+            product_data: {
+                name: 'DIU Campus Delivery Fee',
+                images: []
+            },
+            unit_amount: 20 * 100,
+        },
+        quantity: 1,
+    });
+
+    const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer_email: order.user.email,
+        client_reference_id: orderId,
+        line_items: lineItems,
+        metadata: {
+            orderId: orderId,
+            userId
+        },
+        success_url: `${config.app_url}/payment?success=true&sessionId={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${config.app_url}/payment?success=false&orderId=${orderId}`
+    });
+    // 5. Upsert payment record matching your Prisma model
+    await prisma.payment.upsert({
+        where: { orderId: order.id },
+        create: {
+            orderId: order.id,
+            amount: order.totalAmount,
+            provider: 'STRIPE',
+            status: PaymentStatus.PENDING,
+            transactionId: session.id,
+        },
+        update: {
+            provider: 'STRIPE',
+            amount: order.totalAmount,
+            status: PaymentStatus.PENDING,
+            transactionId: session.id,
+        },
+    });
+    return {
+        paymentUrl: session.url,
+        sessionId: session.id
+    }
+
+
+};
+
+// const handleStripeWebhook = async (payload: Buffer, signature: string) => {
+//     const webhookSecret = config.stripe_webhook_secret;
+
+//     if (!webhookSecret) {
+//         throw new Error('STRIPE_WEBHOOK_SECRET is not configured in .env');
+//     }
+
+//     // 1. Verify event authenticity with Stripe SDK
+//     const event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+
+//     // 2. Handle the successful checkout session event
+//     if (event.type === 'checkout.session.completed') {
+//         const session = event.data.object as Stripe.Checkout.Session;
+//         const orderId = session.metadata?.orderId;
+//         const paymentIntentId = (session.payment_intent as string) || session.id;
+
+//         if (orderId) {
+//             await prisma.$transaction(async (tx) => {
+//                 // Mark payment as PAID
+//                 await tx.payment.update({
+//                     where: { orderId },
+//                     data: {
+//                         status: PaymentStatus.PAID,
+//                         transactionId: paymentIntentId,
+//                     },
+//                 });
+
+//                 // Advance order to PREPARING
+//                 await tx.order.update({
+//                     where: { id: orderId },
+//                     data: {
+//                         status: OrderStatus.PREPARING,
+//                     },
+//                 });
+//             });
+//         }
+//     }
+
+//     return { received: true };
+// };
+
+const handleStripeWebhook = async (payload: Buffer, signature: string) => {
+    const webhookSecret = config.stripe_webhook_secret;
+
+    if (!webhookSecret) {
+        throw new Error('STRIPE_WEBHOOK_SECRET is not configured in .env');
+    }
+
+    // 1. Verify event authenticity with Stripe SDK
+    const event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+    // console.log('🔔 Webhook received! Event type:', event.type);
+
+    // 2. Handle the successful checkout session event
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const orderId = session.metadata?.orderId;
+        const paymentIntentId = (session.payment_intent as string) || session.id;
+
+        // console.log('✅ Checkout completed for Order ID:', orderId);
+
+        if (orderId) {
+            await prisma.$transaction(async (tx) => {
+                await tx.payment.update({
+                    where: { orderId },
+                    data: {
+                        status: PaymentStatus.PAID,
+                        transactionId: paymentIntentId,
+                    },
+                });
+
+                // await tx.order.update({
+                //     where: { id: orderId },
+                //     data: {
+                //         status: OrderStatus.PREPARING,
+                //     },
+                // });
+            });
+            // console.log('🎉 Database updated to PAID and PREPARING!');
+        }
+    }
+
+    return { received: true };
+};
 export const paymentService = {
     initiatepayment,
     updatePaymentStatus,
     getPaymentByOrderId,
-    getRevenueSummary
+    getRevenueSummary,
+    createStripeCheckoutSession,
+    handleStripeWebhook
 }

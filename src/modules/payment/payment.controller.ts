@@ -3,6 +3,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResposne } from "../../utils/sendResponse";
 import { paymentService } from "./payment.service";
 import { Role } from '../../../generated/prisma/enums';
+import { Request, Response } from 'express';
 
 const initiatePayment = catchAsync(
     async (req, res, next) => {
@@ -64,9 +65,37 @@ const getRevenueSummary = catchAsync(
     }
 );
 
+const createStripeCheckoutSession = catchAsync(
+    async (req, res, next) => {
+        const userId = req.user?.id as string;
+        const { orderId } = req.body;
+        const result = await paymentService.createStripeCheckoutSession(userId, orderId as string)
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Stripe checkout session created successfully',
+            data: result,
+        });
+    }
+);
+
+const handleStripeWebhook = async (req: Request, res: Response) => {
+    const signature = req.headers['stripe-signature'] as string;
+
+    try {
+        const result = await paymentService.handleStripeWebhook(req.body, signature);
+        res.status(httpStatus.OK).json(result);
+    } catch (error: any) {
+        console.error('Stripe webhook verification error:', error.message);
+        res.status(httpStatus.BAD_REQUEST).send(`Webhook Error: ${error.message}`);
+    }
+};
+
 export const paymentController = {
     initiatePayment,
     updatePaymentStatus,
     getPaymentByOrderId,
-    getRevenueSummary
+    getRevenueSummary,
+    createStripeCheckoutSession,
+    handleStripeWebhook
 }

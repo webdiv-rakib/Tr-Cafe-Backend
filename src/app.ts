@@ -9,8 +9,15 @@ import { categoryRoutes } from "./modules/category/category.routes";
 import { menuItemRoutes } from "./modules/menuItem/menuItem.routes";
 import { orderRoutes } from "./modules/order/order.routes";
 import { paymentRoutes } from "./modules/payment/payment.routes";
+import { paymentController } from "./modules/payment/payment.controller";
 
 const app: Application = express();
+
+app.post(
+    '/api/payment/stripe/webhook',
+    express.raw({ type: 'application/json' }),
+    paymentController.handleStripeWebhook
+);
 // middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
