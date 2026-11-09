@@ -1035,6 +1035,19 @@ var toggleItemSpecialStatus = async (itemId) => {
     }
   });
 };
+var updateItemAvailability = async (itemId, isAvailable) => {
+  const item = await prisma.menuItem.findUniqueOrThrow({
+    where: { id: itemId }
+  });
+  const newAvailability = typeof isAvailable === "boolean" ? isAvailable : !item.isAvailable;
+  const updatedItem = await prisma.menuItem.update({
+    where: { id: itemId },
+    data: {
+      isAvailable: newAvailability
+    }
+  });
+  return updatedItem;
+};
 var menuItemService = {
   createMenuItem,
   getAllMenuItems,
@@ -1042,7 +1055,8 @@ var menuItemService = {
   updateMenuItem,
   deleteMenuItem,
   getSpecialMenuItems,
-  toggleItemSpecialStatus
+  toggleItemSpecialStatus,
+  updateItemAvailability
 };
 
 // src/modules/menuItem/menuItem.controller.ts
@@ -1136,6 +1150,19 @@ var toggleItemSpecialStatus2 = catchAsync(
     });
   }
 );
+var updateItemAvailability2 = catchAsync(
+  async (req, res, next) => {
+    const { id } = req.params;
+    const { isAvailable } = req.body;
+    const result = await menuItemService.updateItemAvailability(id, isAvailable);
+    sendResposne(res, {
+      success: true,
+      statusCode: httpStatus6.OK,
+      message: `Menu item availability updated to ${result.isAvailable ? "Available" : "Out of Stock"}`,
+      data: result
+    });
+  }
+);
 var menuItemController = {
   createMenuItem: createMenuItem2,
   getAllMenuItems: getAllMenuItems2,
@@ -1143,7 +1170,8 @@ var menuItemController = {
   updateMenuItem: updateMenuItem2,
   deleteMenuItem: deleteMenuItem2,
   getSpecialMenuItems: getSpecialMenuItems2,
-  toggleItemSpecialStatus: toggleItemSpecialStatus2
+  toggleItemSpecialStatus: toggleItemSpecialStatus2,
+  updateItemAvailability: updateItemAvailability2
 };
 
 // src/modules/menuItem/menuItem.routes.ts
@@ -1155,6 +1183,7 @@ router4.post("/", auth(Role.ADMIN), menuItemController.createMenuItem);
 router4.patch("/:id", auth(Role.ADMIN), menuItemController.updateMenuItem);
 router4.delete("/:id", auth(Role.ADMIN), menuItemController.deleteMenuItem);
 router4.patch("/:id/toggle-special", auth(Role.ADMIN, Role.STAFF), menuItemController.toggleItemSpecialStatus);
+router4.patch("/:id/availability", auth(Role.ADMIN, Role.STAFF), menuItemController.updateItemAvailability);
 var menuItemRoutes = router4;
 
 // src/modules/order/order.routes.ts
