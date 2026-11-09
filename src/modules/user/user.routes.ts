@@ -13,6 +13,7 @@ router.patch('/change-password', auth(), userController.changePassword);
 // Admin & Staff: Get all users (supports ?role=RIDER&searchTerm=...)
 router.get('/users', auth(Role.ADMIN, Role.STAFF), userController.getAllUsers);
 router.patch('/users/:id/role', auth(Role.ADMIN), userController.updateUserRole);
+router.patch('/users/:id/status', auth(Role.ADMIN), userController.updateUserStatus);
 
 
 export const userRoutes = router;

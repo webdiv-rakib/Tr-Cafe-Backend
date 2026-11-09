@@ -5,7 +5,7 @@ import { catchAsync } from '../../utils/catchAsync';
 import { sendResposne } from '../../utils/sendResponse';
 import { jwtUtils } from '../../utils/jwt';
 import config from '../../config';
-import { Role } from '../../../generated/prisma/enums';
+import { Role, UserStatus } from '../../../generated/prisma/enums';
 
 
 const createUser = catchAsync(
@@ -96,6 +96,27 @@ const updateUserRole = catchAsync(
             data: result,
         });
     }
+);
+
+const updateUserStatus = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const { isActive } = req.body as { isActive: UserStatus };
+        const currentAdminId = req.user?.id as string;
+
+        const result = await userService.updateUserStatus(
+            id as string,
+            isActive,
+            currentAdminId
+        );
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: `User status updated to ${isActive} successfully`,
+            data: result,
+        });
+    }
 )
 
 export const userController = {
@@ -104,5 +125,6 @@ export const userController = {
     updateProfile,
     changePassword,
     getAllUsers,
-    updateUserRole
+    updateUserRole,
+    updateUserStatus
 };

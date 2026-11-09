@@ -2,7 +2,7 @@ import { prisma } from "../../lib/prisma";
 import bcrypt from 'bcryptjs';
 import config from '../../config';
 import { IChangePassword, ICreateUserInput, IUpdateProfile, IUserResponse } from "./user.interface";
-import { Role } from "../../../generated/prisma/enums";
+import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { Prisma } from "../../../generated/prisma/browser";
 
 const createUser = async (payload: ICreateUserInput): Promise<IUserResponse> => {
@@ -214,7 +214,48 @@ const updateUserRole = async (targetUserId: string, newRole: Role, currentAdminI
     });
 
     return updatedUser;
-}
+};
+
+const updateUserStatus = async (targetUserId: string, newStatus: UserStatus, currentAdminId: string) => {
+    // 1. Validate enum value
+    if (!Object.values(UserStatus).includes(newStatus)) {
+        throw new Error(
+            `Invalid status. Allowed values: ${Object.values(UserStatus).join(', ')}`
+        );
+    }
+
+    // 2. Prevent Admin from banning themselves
+    if (targetUserId === currentAdminId && newStatus === UserStatus.BANNED) {
+        throw new Error('Forbidden: You cannot ban your own admin account');
+    }
+
+    // 3. Ensure target user exists
+    await prisma.user.findUniqueOrThrow({
+        where: { id: targetUserId },
+    });
+
+    // 4. Update the isActive status
+    const updatedUser = await prisma.user.update({
+        where: { id: targetUserId },
+        data: {
+            isActive: newStatus,
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            image: true,
+            role: true,
+            isActive: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+
+    return updatedUser;
+};
+
 
 export const userService = {
     createUser,
@@ -222,5 +263,6 @@ export const userService = {
     updateProfile,
     changePassword,
     getAllUsers,
-    updateUserRole
+    updateUserRole,
+    updateUserStatus
 }
