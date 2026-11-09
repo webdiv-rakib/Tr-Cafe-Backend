@@ -171,6 +171,7 @@ const getAllUsers = async (query: { role?: Role; searchTerm?: string }) => {
             email: true,
             phone: true,
             role: true,
+            isActive: true,
             createdAt: true,
             updatedAt: true,
         },
@@ -179,10 +180,47 @@ const getAllUsers = async (query: { role?: Role; searchTerm?: string }) => {
     return users;
 };
 
+const updateUserRole = async (targetUserId: string, newRole: Role, currentAdminId: string) => {
+    // 1. Validate that the passed role is a valid enum value
+    if (!Object.values(Role).includes(newRole)) {
+        throw new Error(`Invalid role. Allowed roles: ${Object.values(Role).join(', ')}`);
+    }
+
+    // 2. Prevent admin from accidentally demoting themselves
+    if (targetUserId === currentAdminId && newRole !== Role.ADMIN) {
+        throw new Error('Forbidden: You cannot demote your own admin account');
+    }
+
+    // 3. Ensure target user exists
+    await prisma.user.findUniqueOrThrow({
+        where: { id: targetUserId },
+    });
+
+    // 4. Update role
+    const updatedUser = await prisma.user.update({
+        where: { id: targetUserId },
+        data: {
+            role: newRole,
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            isActive: true,
+            updatedAt: true,
+        },
+    });
+
+    return updatedUser;
+}
+
 export const userService = {
     createUser,
     getUserProfile,
     updateProfile,
     changePassword,
-    getAllUsers
+    getAllUsers,
+    updateUserRole
 }

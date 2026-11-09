@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import { NextFunction, Request, Response } from "express"
-import { Role } from "../../generated/prisma/enums"
+import { Role, UserStatus } from "../../generated/prisma/enums"
 import { catchAsync } from "../utils/catchAsync"
 import { jwtUtils } from "../utils/jwt"
 import config from "../config"
@@ -55,9 +55,9 @@ export const auth = (...requiredRoles: Role[]) => {
             if (!user) {
                 throw new Error("User not found. Please log in again.")
             };
-            // if (user.status === "BANNED") {
-            //     throw new Error("Your account has been banned.plase contact support")
-            // };
+            if (user.isActive === UserStatus.BANNED) {
+                throw new Error('Your account has been banned by the administrator.');
+            }
             req.user = {
                 email,
                 name,

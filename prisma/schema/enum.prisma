@@ -33,3 +33,10 @@ enum PaymentStatus {
     FAILED
     REFUNDED
 }
+
+enum UserStatus {
+    ACTIVE
+    INACTIVE
+    BANNED
+    UNBAN
+}
