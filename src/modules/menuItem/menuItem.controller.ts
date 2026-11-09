@@ -77,10 +77,38 @@ const deleteMenuItem = catchAsync(
     }
 );
 
+const getSpecialMenuItems = catchAsync(
+    async (req, res, next) => {
+        const result = await menuItemService.getSpecialMenuItems();
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Special menu items retrieved successfully',
+            data: result,
+        });
+    }
+);
+
+const toggleItemSpecialStatus = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const result = await menuItemService.toggleItemSpecialStatus(id as string);
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Menu item special status toggled successfully',
+            data: result,
+        });
+    }
+);
+
 export const menuItemController = {
     createMenuItem,
     getAllMenuItems,
     getMenuItemById,
     updateMenuItem,
-    deleteMenuItem
+    deleteMenuItem,
+    getSpecialMenuItems,
+    toggleItemSpecialStatus
 }

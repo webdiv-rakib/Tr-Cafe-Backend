@@ -137,12 +137,39 @@ const deleteMenuItem = async (id: string) => {
         }
     });
     return deletedMenuItem
-}
+};
+
+const getSpecialMenuItems = async () => {
+    return await prisma.menuItem.findMany({
+        where: {
+            isSpecial: true,
+            isAvailable: true,
+        },
+        include: {
+            category: true,
+        },
+    });
+};
+
+const toggleItemSpecialStatus = async (itemId: string) => {
+    const item = await prisma.menuItem.findUniqueOrThrow({
+        where: { id: itemId },
+    });
+
+    return await prisma.menuItem.update({
+        where: { id: itemId },
+        data: {
+            isSpecial: !item.isSpecial, // Toggles true <-> false
+        },
+    });
+};
 
 export const menuItemService = {
     createMenuItem,
     getAllMenuItems,
     getMenuItemById,
     updateMenuItem,
-    deleteMenuItem
+    deleteMenuItem,
+    getSpecialMenuItems,
+    toggleItemSpecialStatus
 }
