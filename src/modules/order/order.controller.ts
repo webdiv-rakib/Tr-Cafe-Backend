@@ -65,19 +65,42 @@ const getAllOrders = catchAsync(
     }
 );
 
+// const updateOrderStatus = catchAsync(
+//     async (req, res, next) => {
+//         const { id } = req.params;
+//         const userId = req.user?.id as string;
+//         const role = req.user?.role as Role;
+//         const payload = req.body;
+
+//         const result = await orderService.updateOrderStatus(id as string, userId, role, payload);
+
+//         sendResposne(res, {
+//             success: true,
+//             statusCode: httpStatus.OK,
+//             message: 'Order status updated successfully',
+//             data: result,
+//         });
+//     }
+// );
+
 const updateOrderStatus = catchAsync(
     async (req, res, next) => {
         const { id } = req.params;
+        const { status } = req.body;
         const userId = req.user?.id as string;
-        const role = req.user?.role as Role;
-        const payload = req.body;
+        const userRole = req.user?.role as Role;
 
-        const result = await orderService.updateOrderStatus(id as string, userId, role, payload);
+        const result = await orderService.updateOrderStatus(
+            id as string,
+            status,
+            userId,
+            userRole
+        );
 
         sendResposne(res, {
             success: true,
             statusCode: httpStatus.OK,
-            message: 'Order status updated successfully',
+            message: `Order status updated to ${status} successfully`,
             data: result,
         });
     }

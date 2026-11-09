@@ -318,63 +318,113 @@ const getAllOrders = async (filters: IOrderFilterQuery) => {
     return formattedOrders;
 }
 
-const updateOrderStatus = async (orderId: string, userId: string, role: Role, payload: IUpdateOrderStatusPayload) => {
-    const { status: targetStatus } = payload;
+// const updateOrderStatus = async (orderId: string, userId: string, role: Role, payload: IUpdateOrderStatusPayload) => {
+//     const { status: targetStatus } = payload;
 
-    if (!targetStatus) {
-        throw new Error('New order status is required');
-    }
+//     if (!targetStatus) {
+//         throw new Error('New order status is required');
+//     }
 
-    // 1. Verify order exists
-    const existingOrder = await prisma.order.findUniqueOrThrow({
+//     // 1. Verify order exists
+//     const existingOrder = await prisma.order.findUniqueOrThrow({
+//         where: { id: orderId },
+//     });
+
+//     const currentStatus = existingOrder.status;
+
+//     // 2. Prevent updates on finalized orders
+//     if (currentStatus === OrderStatus.DELIVERED) {
+//         throw new Error('Order is already marked as DELIVERED and cannot be modified');
+//     }
+
+//     if (currentStatus === OrderStatus.CANCELLED) {
+//         throw new Error('Order has been CANCELLED and cannot be modified');
+//     }
+
+//     // 3. Role-specific restrictions
+//     if (role === Role.RIDER) {
+//         // Riders can only update orders assigned directly to them
+//         if (existingOrder.riderId !== userId) {
+//             throw new Error('Forbidden: You can only update orders assigned to you');
+//         }
+
+//         // Riders can only mark orders as OUT_FOR_DELIVERY or DELIVERED
+//         if (
+//             targetStatus !== OrderStatus.OUT_FOR_DELIVERY &&
+//             targetStatus !== OrderStatus.DELIVERED
+//         ) {
+//             throw new Error('Riders can only change status to OUT_FOR_DELIVERY or DELIVERED');
+//         }
+//     }
+
+//     // 4. Update the order status
+//     const updatedOrder = await prisma.order.update({
+//         where: { id: orderId },
+//         data: {
+//             status: targetStatus,
+//         },
+//         include: {
+//             user: {
+//                 select: {
+//                     id: true,
+//                     name: true,
+//                     phone: true,
+//                     email: true,
+//                 },
+//             },
+//             rider: {
+//                 select: {
+//                     id: true,
+//                     name: true,
+//                     phone: true,
+//                 },
+//             },
+//         },
+//     });
+
+//     return updatedOrder;
+// };
+
+const updateOrderStatus = async (orderId: string, newStatus: OrderStatus, userId: string, userRole: Role) => {
+    // 1. Fetch order
+    const order = await prisma.order.findUniqueOrThrow({
         where: { id: orderId },
     });
 
-    const currentStatus = existingOrder.status;
-
-    // 2. Prevent updates on finalized orders
-    if (currentStatus === OrderStatus.DELIVERED) {
-        throw new Error('Order is already marked as DELIVERED and cannot be modified');
-    }
-
-    if (currentStatus === OrderStatus.CANCELLED) {
-        throw new Error('Order has been CANCELLED and cannot be modified');
-    }
-
-    // 3. Role-specific restrictions
-    if (role === Role.RIDER) {
-        // Riders can only update orders assigned directly to them
-        if (existingOrder.riderId !== userId) {
-            throw new Error('Forbidden: You can only update orders assigned to you');
+    // 2. Role-based security validation
+    if (userRole === Role.RIDER) {
+        // A rider can only update orders assigned directly to them
+        if (order.riderId !== userId) {
+            throw new Error('Forbidden: You are not assigned to deliver this order');
         }
 
-        // Riders can only mark orders as OUT_FOR_DELIVERY or DELIVERED
+        // Riders should only be allowed to transition status to OUT_FOR_DELIVERY or DELIVERED
         if (
-            targetStatus !== OrderStatus.OUT_FOR_DELIVERY &&
-            targetStatus !== OrderStatus.DELIVERED
+            newStatus !== OrderStatus.OUT_FOR_DELIVERY &&
+            newStatus !== OrderStatus.DELIVERED
         ) {
-            throw new Error('Riders can only change status to OUT_FOR_DELIVERY or DELIVERED');
+            throw new Error(
+                'Forbidden: Riders can only update order status to OUT_FOR_DELIVERY or DELIVERED'
+            );
         }
     }
 
-    // 4. Update the order status
+    // 3. Perform the status update
     const updatedOrder = await prisma.order.update({
         where: { id: orderId },
         data: {
-            status: targetStatus,
+            status: newStatus,
         },
         include: {
             user: {
                 select: {
-                    id: true,
                     name: true,
-                    phone: true,
                     email: true,
+                    phone: true,
                 },
             },
             rider: {
                 select: {
-                    id: true,
                     name: true,
                     phone: true,
                 },
@@ -383,7 +433,8 @@ const updateOrderStatus = async (orderId: string, userId: string, role: Role, pa
     });
 
     return updatedOrder;
-};
+}
+
 
 const assignRider = async (orderId: string, payload: IAssignRiderPayload) => {
     const { riderId } = payload;
