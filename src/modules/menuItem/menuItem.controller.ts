@@ -103,6 +103,22 @@ const toggleItemSpecialStatus = catchAsync(
     }
 );
 
+const updateItemAvailability = catchAsync(
+    async (req, res, next) => {
+        const { id } = req.params;
+        const { isAvailable } = req.body;
+
+        const result = await menuItemService.updateItemAvailability(id as string, isAvailable);
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: `Menu item availability updated to ${result.isAvailable ? 'Available' : 'Out of Stock'}`,
+            data: result,
+        });
+    }
+)
+
 export const menuItemController = {
     createMenuItem,
     getAllMenuItems,
@@ -110,5 +126,6 @@ export const menuItemController = {
     updateMenuItem,
     deleteMenuItem,
     getSpecialMenuItems,
-    toggleItemSpecialStatus
+    toggleItemSpecialStatus,
+    updateItemAvailability
 }

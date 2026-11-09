@@ -638,7 +638,7 @@
           "response": []
         },
         {
-          "name": "Get Special Menu Items Copy",
+          "name": "Toggle isSpecial",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -663,6 +663,37 @@
                 "menu-items",
                 "cmw6i8zds000108tznt7linwg",
                 "toggle-special"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle isAvailable",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"isAvailable\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/menu-items/cmw6i8zds000108tznt7linwg/availability",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "menu-items",
+                "cmw6i8zds000108tznt7linwg",
+                "availability"
               ]
             }
           },

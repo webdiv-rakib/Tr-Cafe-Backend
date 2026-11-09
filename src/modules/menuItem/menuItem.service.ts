@@ -164,6 +164,26 @@ const toggleItemSpecialStatus = async (itemId: string) => {
     });
 };
 
+const updateItemAvailability = async (itemId: string, isAvailable?: boolean) => {
+    // 1. Ensure item exists
+    const item = await prisma.menuItem.findUniqueOrThrow({
+        where: { id: itemId },
+    });
+
+    // 2. If isAvailable is explicitly passed in body, use it; otherwise toggle it (true <-> false)
+    const newAvailability = typeof isAvailable === 'boolean' ? isAvailable : !item.isAvailable;
+
+    // 3. Update in database
+    const updatedItem = await prisma.menuItem.update({
+        where: { id: itemId },
+        data: {
+            isAvailable: newAvailability,
+        },
+    });
+
+    return updatedItem;
+};
+
 export const menuItemService = {
     createMenuItem,
     getAllMenuItems,
@@ -171,5 +191,6 @@ export const menuItemService = {
     updateMenuItem,
     deleteMenuItem,
     getSpecialMenuItems,
-    toggleItemSpecialStatus
+    toggleItemSpecialStatus,
+    updateItemAvailability
 }

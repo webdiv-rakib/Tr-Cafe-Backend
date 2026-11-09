@@ -15,7 +15,8 @@ router.get('/:id', menuItemController.getMenuItemById);
 router.post('/', auth(Role.ADMIN), menuItemController.createMenuItem);
 router.patch('/:id', auth(Role.ADMIN), menuItemController.updateMenuItem);
 router.delete('/:id', auth(Role.ADMIN), menuItemController.deleteMenuItem);
-router.patch('/:id/toggle-special', auth(Role.ADMIN,Role.STAFF), menuItemController.toggleItemSpecialStatus);
+router.patch('/:id/toggle-special', auth(Role.ADMIN, Role.STAFF), menuItemController.toggleItemSpecialStatus);
+router.patch('/:id/availability', auth(Role.ADMIN, Role.STAFF), menuItemController.updateItemAvailability);
 
 
 export const menuItemRoutes = router
