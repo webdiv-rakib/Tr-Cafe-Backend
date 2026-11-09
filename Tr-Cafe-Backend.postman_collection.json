@@ -17,7 +17,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Rakib\",\r\n    \"email\": \"rakib@gmail.com\",\r\n    \"password\": \"12345\"\r\n}",
+              "raw": "{\r\n    \"name\": \"Afraj\",\r\n    \"email\": \"afraj@gmail.com\",\r\n    \"password\": \"12345\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -211,6 +211,100 @@
                 "api",
                 "auth",
                 "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"orderId\": \"cmw866p7d000134tzxyzq8i6e\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"role\": \"STAFF\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/users/32de9335-1559-4443-a052-5a1b8470798c/role",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "users",
+                "32de9335-1559-4443-a052-5a1b8470798c",
+                "role"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Users Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"isActive\": \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/users/32de9335-1559-4443-a052-5a1b8470798c/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "users",
+                "32de9335-1559-4443-a052-5a1b8470798c",
+                "status"
               ]
             }
           },
@@ -521,6 +615,58 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Special Menu Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/menu-items/specials",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "menu-items",
+                "specials"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Special Menu Items Copy",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"isSpecial\":true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/menu-items/cmw6i8zds000108tznt7linwg/toggle-special",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "menu-items",
+                "cmw6i8zds000108tznt7linwg",
+                "toggle-special"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -534,7 +680,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"deliveryAddress\": \"Younus Khan Scholar's Garden, Room 402, DIU Permanent Campus\",\r\n    \"contactPhone\": \"01700000000\",\r\n    \"orderNotes\": \"Knock quietly\",\r\n    \"deliveryZone\": \"DIU_PERMANENT_CAMPUS\",\r\n    \"paymentMethod\": \"CASH_ON_DELIVERY\",\r\n    \"items\": [\r\n        {\r\n            \"menuItemId\": \"cmw6i8zds000108tznt7linwg\",\r\n            \"quantity\": 2\r\n        }\r\n    ]\r\n}",
+              "raw": "{\r\n    \"deliveryAddress\": \"Younus Khan Scholar's Garden, Room 402, DIU Permanent Campus\",\r\n    \"contactPhone\": \"01889966347\",\r\n    \"orderNotes\": \"Knock quietly\",\r\n    \"deliveryZone\": \"DIU_PERMANENT_CAMPUS\",\r\n    \"paymentMethod\": \"SSLCOMMERZ\",\r\n    \"items\": [\r\n        {\r\n            \"menuItemId\": \"cmw6i8zds000108tznt7linwg\",\r\n            \"quantity\": 5\r\n        }\r\n    ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -849,7 +995,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/payment/order/cmw6o5m8n0000vgtzdps9vy0b",
+              "raw": "http://localhost:5000/api/payment/order/cmw839rkn0001vwtz4mcxfx1z",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -859,7 +1005,7 @@
                 "api",
                 "payment",
                 "order",
-                "cmw6o5m8n0000vgtzdps9vy0b"
+                "cmw839rkn0001vwtz4mcxfx1z"
               ]
             }
           },
@@ -890,6 +1036,68 @@
                 "api",
                 "payment",
                 "revenue"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Payment With Stripe",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"orderId\": \"cmw804ir30000zwtzhnrl5eo1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/payment/stripe/checkout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "payment",
+                "stripe",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Payment With SSLCommerz",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"orderId\": \"cmw866p7d000134tzxyzq8i6e\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/payment/sslcommerz/init",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "payment",
+                "sslcommerz",
+                "init"
               ]
             }
           },
