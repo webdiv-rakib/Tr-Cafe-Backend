@@ -1478,46 +1478,35 @@ var getAllOrders = async (filters) => {
   }));
   return formattedOrders;
 };
-var updateOrderStatus = async (orderId, userId, role, payload) => {
-  const { status: targetStatus } = payload;
-  if (!targetStatus) {
-    throw new Error("New order status is required");
-  }
-  const existingOrder = await prisma.order.findUniqueOrThrow({
+var updateOrderStatus = async (orderId, newStatus, userId, userRole) => {
+  const order = await prisma.order.findUniqueOrThrow({
     where: { id: orderId }
   });
-  const currentStatus = existingOrder.status;
-  if (currentStatus === OrderStatus.DELIVERED) {
-    throw new Error("Order is already marked as DELIVERED and cannot be modified");
-  }
-  if (currentStatus === OrderStatus.CANCELLED) {
-    throw new Error("Order has been CANCELLED and cannot be modified");
-  }
-  if (role === Role.RIDER) {
-    if (existingOrder.riderId !== userId) {
-      throw new Error("Forbidden: You can only update orders assigned to you");
+  if (userRole === Role.RIDER) {
+    if (order.riderId !== userId) {
+      throw new Error("Forbidden: You are not assigned to deliver this order");
     }
-    if (targetStatus !== OrderStatus.OUT_FOR_DELIVERY && targetStatus !== OrderStatus.DELIVERED) {
-      throw new Error("Riders can only change status to OUT_FOR_DELIVERY or DELIVERED");
+    if (newStatus !== OrderStatus.OUT_FOR_DELIVERY && newStatus !== OrderStatus.DELIVERED) {
+      throw new Error(
+        "Forbidden: Riders can only update order status to OUT_FOR_DELIVERY or DELIVERED"
+      );
     }
   }
   const updatedOrder = await prisma.order.update({
     where: { id: orderId },
     data: {
-      status: targetStatus
+      status: newStatus
     },
     include: {
       user: {
         select: {
-          id: true,
           name: true,
-          phone: true,
-          email: true
+          email: true,
+          phone: true
         }
       },
       rider: {
         select: {
-          id: true,
           name: true,
           phone: true
         }
@@ -1742,14 +1731,19 @@ var getAllOrders2 = catchAsync(
 var updateOrderStatus2 = catchAsync(
   async (req, res, next) => {
     const { id } = req.params;
+    const { status } = req.body;
     const userId = req.user?.id;
-    const role = req.user?.role;
-    const payload = req.body;
-    const result = await orderService.updateOrderStatus(id, userId, role, payload);
+    const userRole = req.user?.role;
+    const result = await orderService.updateOrderStatus(
+      id,
+      status,
+      userId,
+      userRole
+    );
     sendResposne(res, {
       success: true,
       statusCode: httpStatus7.OK,
-      message: "Order status updated successfully",
+      message: `Order status updated to ${status} successfully`,
       data: result
     });
   }
