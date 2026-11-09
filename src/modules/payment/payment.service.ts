@@ -476,6 +476,23 @@ const validateSSLCommerzSuccess = async (payload: any) => {
     };
 };
 
+const handleSSLCommerzFailOrCancel = async (payload: any) => {
+    const { tran_id } = payload;
+    if (tran_id) {
+        await prisma.payment.updateMany({
+            where: {
+                transactionId: tran_id,
+                status: PaymentStatus.PENDING,
+            },
+            data: {
+                status: PaymentStatus.FAILED,
+            },
+        });
+    }
+
+    return { transactionId: tran_id };
+}
+
 export const paymentService = {
     initiatepayment,
     updatePaymentStatus,
@@ -484,5 +501,6 @@ export const paymentService = {
     createStripeCheckoutSession,
     handleStripeWebhook,
     initSSLCommerzPayment,
-    validateSSLCommerzSuccess
+    validateSSLCommerzSuccess,
+    handleSSLCommerzFailOrCancel
 }

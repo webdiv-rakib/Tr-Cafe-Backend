@@ -13,7 +13,7 @@ router.get('/:id', menuItemController.getMenuItemById);
 // Protected routes (ADMIN,STAFF)
 router.post('/', auth(Role.ADMIN), menuItemController.createMenuItem);
 router.patch('/:id', auth(Role.ADMIN), menuItemController.updateMenuItem);
-router.delete('/:id', menuItemController.deleteMenuItem);
+router.delete('/:id', auth(Role.ADMIN),menuItemController.deleteMenuItem);
 
 
 export const menuItemRoutes = router

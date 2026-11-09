@@ -118,6 +118,15 @@ const sslCommerzSuccess = catchAsync(
     }
 );
 
+const handleSSLCommerzFailOrCancel = catchAsync(
+    async (req, res, next) => {
+        const result = await paymentService.handleSSLCommerzFailOrCancel(req.body);
+
+        return res.redirect(
+            `${config.app_url}/payment?success=false&tranId=${result.transactionId}`
+        );
+    }
+)
 
 export const paymentController = {
     initiatePayment,
@@ -127,5 +136,6 @@ export const paymentController = {
     createStripeCheckoutSession,
     handleStripeWebhook,
     initSSLCommerzPayment,
-    sslCommerzSuccess
+    sslCommerzSuccess,
+    handleSSLCommerzFailOrCancel
 }

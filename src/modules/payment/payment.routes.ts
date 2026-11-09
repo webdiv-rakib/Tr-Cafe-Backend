@@ -8,6 +8,8 @@ const router = Router();
 // SSLCommerz Check Out URL
 router.post('/sslcommerz/init', auth(Role.CUSTOMER), paymentController.initSSLCommerzPayment);
 router.post('/sslcommerz/success', paymentController.sslCommerzSuccess);
+router.post('/sslcommerz/fail', paymentController.handleSSLCommerzFailOrCancel);
+router.post('/sslcommerz/cancel', paymentController.handleSSLCommerzFailOrCancel);
 
 // Stripe Check Out URL
 router.post('/stripe/checkout', auth(Role.CUSTOMER), paymentController.createStripeCheckoutSession);
