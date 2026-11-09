@@ -5,6 +5,7 @@ import { catchAsync } from '../../utils/catchAsync';
 import { sendResposne } from '../../utils/sendResponse';
 import { jwtUtils } from '../../utils/jwt';
 import config from '../../config';
+import { Role } from '../../../generated/prisma/enums';
 
 
 const createUser = catchAsync(
@@ -64,11 +65,27 @@ const changePassword = catchAsync(
             data: null,
         });
     }
-)
+);
+
+const getAllUsers = catchAsync(
+    async (req, res, next) => {
+        const { role, searchTerm } = req.query as { role?: Role; searchTerm?: string };
+
+        const result = await userService.getAllUsers({ role, searchTerm });
+
+        sendResposne(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Users retrieved successfully',
+            data: result,
+        });
+    }
+);
 
 export const userController = {
     createUser,
     getUserProfile,
     updateProfile,
-    changePassword
+    changePassword,
+    getAllUsers
 };

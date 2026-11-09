@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import config from '../../config';
 import { IChangePassword, ICreateUserInput, IUpdateProfile, IUserResponse } from "./user.interface";
 import { Role } from "../../../generated/prisma/enums";
+import { Prisma } from "../../../generated/prisma/browser";
 
 const createUser = async (payload: ICreateUserInput): Promise<IUserResponse> => {
     const { name, email, password, phone, role } = payload;
@@ -116,11 +117,72 @@ const changePassword = async (id: string, payload: IChangePassword) => {
         }
     });
     return null
-}
+};
+
+const getAllUsers = async (query: { role?: Role; searchTerm?: string }) => {
+    const { role, searchTerm } = query;
+
+    const andConditions: Prisma.UserWhereInput[] = [];
+
+    // Filter by role (e.g., ?role=RIDER or ?role=STAFF)
+    if (role) {
+        andConditions.push({
+            role: role as Role,
+        });
+    }
+
+    // Optional search by name, email, or phone
+    if (searchTerm) {
+        andConditions.push({
+            OR: [
+                {
+                    name: {
+                        contains: searchTerm,
+                        mode: 'insensitive',
+                    },
+                },
+                {
+                    email: {
+                        contains: searchTerm,
+                        mode: 'insensitive',
+                    },
+                },
+                {
+                    phone: {
+                        contains: searchTerm,
+                        mode: 'insensitive',
+                    },
+                },
+            ],
+        });
+    }
+
+    const whereConditions: Prisma.UserWhereInput =
+        andConditions.length > 0 ? { AND: andConditions } : {};
+
+    const users = await prisma.user.findMany({
+        where: whereConditions,
+        orderBy: {
+            createdAt: 'desc',
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+
+    return users;
+};
 
 export const userService = {
     createUser,
     getUserProfile,
     updateProfile,
-    changePassword
+    changePassword,
+    getAllUsers
 }

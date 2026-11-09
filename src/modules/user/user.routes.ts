@@ -10,4 +10,9 @@ router.get('/profile', auth(), userController.getUserProfile);
 router.patch('/update-profile', auth(), userController.updateProfile);
 router.patch('/change-password', auth(), userController.changePassword);
 
+// Admin & Staff: Get all users (supports ?role=RIDER&searchTerm=...)
+router.get('/users', auth(Role.ADMIN, Role.STAFF), userController.getAllUsers);
+
+
+
 export const userRoutes = router;
