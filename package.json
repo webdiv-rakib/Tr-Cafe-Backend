@@ -8,7 +8,8 @@
   "main": "server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsup src/index.ts --format esm --platform node --target node20 --outDir api --external pg-native",
+    "postinstall": "prisma generate",
     "start": "node dist/server.js",
     "stripe:webhook": "stripe listen --all-snapshot --forward-to localhost:5000/api/payment/stripe/webhook",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -36,6 +37,7 @@
     "http-status": "^2.1.0",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.1",
-    "stripe": "^23.1.0"
+    "stripe": "^23.1.0",
+    "tsup": "^9.0.0"
   }
 }
