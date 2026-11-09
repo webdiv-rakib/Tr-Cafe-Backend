@@ -17,7 +17,7 @@ const createUser = async (payload: ICreateUserInput): Promise<IUserResponse> => 
     });
 
     if (isUserExist) {
-        throw new Error('User already exists');
+        // throw new Error('User already exists');
     }
 
     const hashedPassword = await bcrypt.hash(

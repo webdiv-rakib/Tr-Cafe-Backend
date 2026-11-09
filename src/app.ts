@@ -10,6 +10,8 @@ import { menuItemRoutes } from "./modules/menuItem/menuItem.routes";
 import { orderRoutes } from "./modules/order/order.routes";
 import { paymentRoutes } from "./modules/payment/payment.routes";
 import { paymentController } from "./modules/payment/payment.controller";
+import { notFound } from "./middlewares/notFound";
+import { globalErrorHandler } from "./middlewares/globalErrorHandle";
 
 const app: Application = express();
 
@@ -49,5 +51,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/menu-items', menuItemRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/payment', paymentRoutes);
+
+app.use(notFound);
+app.use(globalErrorHandler);
 
 export default app;

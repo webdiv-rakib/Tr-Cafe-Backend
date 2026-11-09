@@ -13,6 +13,9 @@ const loginUser = async (payload: ILoginUser) => { //payload for email,pass
             email
         },
     });
+    if (user.isActive === "BANNED") {
+        throw new Error("Your account has been banned, Please contact support")
+    }
 
     if (!user) {
         throw new Error('User Not Found')
