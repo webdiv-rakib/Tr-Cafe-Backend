@@ -310,12 +310,12 @@ const handleStripeWebhook = async (payload: Buffer, signature: string) => {
                     },
                 });
 
-                // await tx.order.update({
-                //     where: { id: orderId },
-                //     data: {
-                //         status: OrderStatus.PREPARING,
-                //     },
-                // });
+                await tx.order.update({
+                    where: { id: orderId },
+                    data: {
+                        status: OrderStatus.PREPARING,
+                    },
+                });
             });
             // console.log('🎉 Database updated to PAID and PREPARING!');
         }
