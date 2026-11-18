@@ -30,7 +30,7 @@ var config_default = {
   ssl_store_pass: process.env.SSL_STORE_PASS,
   ssl_payment_api: process.env.SSL_PAYMENT_API,
   ssl_validation_api: process.env.SSL_VALIDATION_API,
-  backend_url: process.env.BACKEND_URL || "http://localhost:5000/api"
+  frontend_url: process.env.FRONTEND_URL
 };
 
 // src/app.ts
@@ -2266,10 +2266,10 @@ var initSSLCommerzPayment = async (userId, orderId) => {
     currency: "BDT",
     tran_id: transactionId,
     // SSLCommerz sends a POST request to these backend endpoints upon completion
-    success_url: `${config_default.backend_url}/payment/sslcommerz/success`,
-    fail_url: `${config_default.backend_url}/payment/sslcommerz/fail`,
-    cancel_url: `${config_default.backend_url}/payment/sslcommerz/cancel`,
-    ipn_url: `${config_default.backend_url}/payment/sslcommerz/ipn`,
+    success_url: `${config_default.frontend_url}/payment/sslcommerz/success`,
+    fail_url: `${config_default.frontend_url}/payment/sslcommerz/fail`,
+    cancel_url: `${config_default.frontend_url}/payment/sslcommerz/cancel`,
+    ipn_url: `${config_default.frontend_url}/payment/sslcommerz/ipn`,
     shipping_method: "Courier",
     product_name: order.items.map((i) => i.menuItem.name).join(", "),
     product_category: "Fast Food",
