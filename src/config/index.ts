@@ -7,6 +7,8 @@ export default {
     port: process.env.PORT,
     app_url: process.env.APP_URL,
     database_url: process.env.DATABASE_URL,
+    frontend_url: process.env.FRONTEND_URL,
+    backend_url: process.env.BACKEND_URL || 'http://localhost:5000/api',
     bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
     jwt_access_secret: process.env.JWT_ACCESS_SECRET!, // add these 4 line below
     jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN!,
@@ -19,5 +21,4 @@ export default {
     ssl_store_pass: process.env.SSL_STORE_PASS!,
     ssl_payment_api: process.env.SSL_PAYMENT_API!,
     ssl_validation_api: process.env.SSL_VALIDATION_API!,
-    frontend_url: process.env.FRONTEND_URL!
 }

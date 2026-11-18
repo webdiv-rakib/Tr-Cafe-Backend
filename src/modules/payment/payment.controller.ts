@@ -92,6 +92,16 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
     }
 };
 
+// const verifyStripePayment = async (req: Request, res: Response) => {
+//     const { sessionId } = req.body;
+//     const result = await paymentService.verifyStripeSession(sessionId);
+//     res.status(httpStatus.OK).json({
+//         success: true,
+//         message: 'Payment verified successfully',
+//         data: result,
+//     });
+// };
+
 const initSSLCommerzPayment = catchAsync(
     async (req, res, next) => {
         const userId = req.user?.id as string;
@@ -137,5 +147,6 @@ export const paymentController = {
     handleStripeWebhook,
     initSSLCommerzPayment,
     sslCommerzSuccess,
-    handleSSLCommerzFailOrCancel
+    handleSSLCommerzFailOrCancel,
+    // verifyStripePayment
 }

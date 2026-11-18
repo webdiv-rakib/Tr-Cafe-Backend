@@ -324,6 +324,51 @@ const handleStripeWebhook = async (payload: Buffer, signature: string) => {
     return { received: true };
 };
 
+// const verifyStripeSession = async (sessionId: string) => {
+//     // 1. Fetch the session directly from Stripe's API
+//     const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+//     if (session.payment_status !== 'paid') {
+//         throw new Error('Payment has not been completed yet');
+//     }
+
+//     const orderId = session.metadata?.orderId;
+//     const paymentIntentId = (session.payment_intent as string) || session.id;
+
+//     if (!orderId) {
+//         throw new Error('Order ID missing in Stripe session metadata');
+//     }
+
+//     // 2. Check if webhook already updated it (idempotency guard)
+//     const existingPayment = await prisma.payment.findUnique({
+//         where: { orderId },
+//     });
+
+//     if (existingPayment?.status === PaymentStatus.PAID) {
+//         return { orderId, alreadyVerified: true };
+//     }
+
+//     // 3. Atomically update Payment to PAID and Order to PREPARING
+//     await prisma.$transaction(async (tx) => {
+//         await tx.payment.update({
+//             where: { orderId },
+//             data: {
+//                 status: PaymentStatus.PAID,
+//                 transactionId: paymentIntentId,
+//             },
+//         });
+
+//         await tx.order.update({
+//             where: { id: orderId },
+//             data: {
+//                 status: OrderStatus.PREPARING,
+//             },
+//         });
+//     });
+
+//     return { orderId, verified: true };
+// };
+
 //-----------------SSLECOMMERZ------------------
 const initSSLCommerzPayment = async (userId: string, orderId: string) => {
     // 1. Fetch order with items and user
@@ -365,10 +410,10 @@ const initSSLCommerzPayment = async (userId: string, orderId: string) => {
         currency: 'BDT',
         tran_id: transactionId,
         // SSLCommerz sends a POST request to these backend endpoints upon completion
-        success_url: `${config.frontend_url}/payment/sslcommerz/success`,
-        fail_url: `${config.frontend_url}/payment/sslcommerz/fail`,
-        cancel_url: `${config.frontend_url}/payment/sslcommerz/cancel`,
-        ipn_url: `${config.frontend_url}/payment/sslcommerz/ipn`,
+        success_url: `${config.backend_url}/payment/sslcommerz/success`,
+        fail_url: `${config.backend_url}/payment/sslcommerz/fail`,
+        cancel_url: `${config.backend_url}/payment/sslcommerz/cancel`,
+        ipn_url: `${config.backend_url}/payment/sslcommerz/ipn`,
         shipping_method: 'Courier',
         product_name: order.items.map((i) => i.menuItem.name).join(', '),
         product_category: 'Fast Food',
@@ -502,5 +547,6 @@ export const paymentService = {
     handleStripeWebhook,
     initSSLCommerzPayment,
     validateSSLCommerzSuccess,
-    handleSSLCommerzFailOrCancel
+    handleSSLCommerzFailOrCancel,
+    // verifyStripeSession
 }
