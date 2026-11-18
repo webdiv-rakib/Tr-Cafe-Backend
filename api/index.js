@@ -2223,6 +2223,12 @@ var handleStripeWebhook = async (payload, signature) => {
             transactionId: paymentIntentId
           }
         });
+        await tx.order.update({
+          where: { id: orderId },
+          data: {
+            status: OrderStatus.PREPARING
+          }
+        });
       });
     }
   }
