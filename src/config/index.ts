@@ -19,5 +19,5 @@ export default {
     ssl_store_pass: process.env.SSL_STORE_PASS!,
     ssl_payment_api: process.env.SSL_PAYMENT_API!,
     ssl_validation_api: process.env.SSL_VALIDATION_API!,
-    backend_url: process.env.BACKEND_URL || 'http://localhost:5000/api',
+    frontend_url: process.env.FRONTEND_URL!
 }
